@@ -1,3 +1,13 @@
+SQL statements to create database tables:
+
+drop table Person_flight cascade constraints;
+drop table Flights cascade constraints;
+drop table Person_event cascade constraints;
+drop table Events cascade constraints;
+drop table Tests cascade constraints;
+drop table Person cascade constraints;
+drop table Houses cascade constraints;
+
 CREATE TABLE Houses
  (
  hid INT,
@@ -69,3 +79,61 @@ CREATE TABLE Person_flight
  FOREIGN KEY(pid) REFERENCES Person(pid),
  FOREIGN KEY(fid) REFERENCES Flights(fid)
  );
+ 
+ --created 2 sequences used in feature 1 and 2
+create sequence mid_seq3 					
+start with 16;
+
+create sequence mid_seq2
+start with 6;
+
+Table Inserts:
+
+--insert values into table Houses
+insert into Houses values(1, '1025 Howland Sq', '21227');
+insert into Houses values(2, '1026 Howland Sq', '21228');
+insert into Houses values(3, '1027 Howland Sq', '21229');
+insert into Houses values(4, '1028 Howland Sq', '21220');
+insert into Houses values(5, '1029 Howland Sq', '21221');
+
+--insert values into table Person 									#Updated the address values in the Person table
+insert into Person values(11, 1, '1025 Howland Sq', 'Rohan', '6672321002', 0);
+insert into Person values(12, 2, '1027 Howland Sq', 'Vikas',  '6672321003', 0);
+insert into Person values(13, 3, '1026 Howland Sq', 'Vickey', '6672321004', 1);
+insert into Person values(14, 4, '1028 Howland Sq', 'Vaishak', '6672321005', 1);
+insert into Person values(15, 5, '1029 Howland Sq', 'Vishal', '6672321006', 1);
+
+--insert values into table Tests
+insert into Tests values(11, date '2020-08-08', 0);
+insert into Tests values(12, date '2020-10-07', 0);
+insert into Tests values(13, date '2010-08-08', 1);
+insert into Tests values(15, date '2019-08-05', 0);
+insert into Tests values(14, date '2020-09-01', 0);
+
+--insert values into table Events
+insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
+insert into Events values(312, 'Hitler', date '2013-10-03', '4143 greenville');
+insert into Events values(313, 'Vile', date '2015-08-05', '4144 greenville');
+insert into Events values(314, 'John', date '2016-10-02', '4145 greenville');
+insert into Events values(315, 'Peter', date '2017-01-05', '4146 greenville');
+
+--insert values into table Person_event
+insert into Person_event values(11, 311);
+insert into Person_event values(12, 312);
+insert into Person_event values(13, 313);
+insert into Person_event values(14, 311);
+insert into Person_event values(15, 314);
+
+--insert values into table Flights
+insert into Flights values(1111, date '2020-06-13', 'DL 819');
+insert into Flights values(1112, date '2020-10-08', 'AA 820');
+insert into Flights values(1113, date '2017-08-18', 'BA 821');
+insert into Flights values(1114, date '2020-10-28', 'GF 823');
+insert into Flights values(1115, date '2010-11-08', 'DL 824');
+
+--insert values into table Person_flight
+insert into Person_flight values(11, 1111);
+insert into Person_flight values(12, 1112);
+insert into Person_flight values(11, 1114);
+insert into Person_flight values(13, 1114);
+insert into Person_flight values(14, 1111);
