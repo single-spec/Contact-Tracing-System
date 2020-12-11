@@ -1,0 +1,71 @@
+CREATE TABLE Houses
+ (
+ hid INT,
+ address VARCHAR(30),
+ zip CHAR(5),
+ PRIMARY KEY(hid)
+ );
+
+-- Added a constraint to status 
+CREATE TABLE Person
+ (
+ pid INT,
+ hid INT,
+ p_name VARCHAR(15),
+ phone VARCHAR(10),
+ status INT Check ( status In (0,1)),
+ PRIMARY KEY (pid),
+ FOREIGN KEY (hid) REFERENCES Houses(hid)
+ );
+
+-- Created a primary key
+-- Changed the result column name to res as it is a reserved keyword
+-- Applied a constraint check on res. 
+CREATE TABLE Tests
+ (
+ pid INT,
+ t_date DATE,
+ res INT Check ( res In (0,1)),
+ Primary Key (pid),
+ FOREIGN KEY(pid) REFERENCES Person(pid)
+ );
+
+CREATE TABLE Events
+ (
+ eid INT,
+ e_name VARCHAR(20),
+ e_date DATE,
+ e_address VARCHAR(30),
+ PRIMARY KEY(eid)
+ );
+
+
+-- Added a comma
+-- Added  composite primary key
+CREATE TABLE Person_event
+ (
+ pid INT,
+ eid INT,
+ Primary Key (pid, eid),
+ FOREIGN KEY(pid) REFERENCES Person(pid),
+ FOREIGN KEY(eid) REFERENCES Events(eid)
+ );
+ 
+CREATE TABLE Flights
+ (
+ fid INT,
+ f_date DATE,
+ f_number VARCHAR(10),
+ PRIMARY KEY(fid)
+ );
+
+
+-- Created Composite primary key
+CREATE TABLE Person_flight
+ (
+ pid INT,
+ fid INT,
+ Primary Key (pid, fid),
+ FOREIGN KEY(pid) REFERENCES Person(pid),
+ FOREIGN KEY(fid) REFERENCES Flights(fid)
+ );

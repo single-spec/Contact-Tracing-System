@@ -1,0 +1,70 @@
+Feature 7______________________________________________________________________________________
+
+CREATE OR REPLACE TYPE phoneListType as varray(10) of INT;
+
+CREATE OR REPLACE PROCEDURE  insertPersonsAtEvent(plist personsListType, e_id INTEGER) 
+    IS     
+    evnt Events.eid%type;
+    psn Person.pid%type;
+    psn_evnt number;
+BEGIN
+    -- Checking if event exists in the event table.
+    SELECT Count(*) into evnt FROM Events Where eid = e_id;
+        IF evnt = 0 THEN 
+            dbms_output.put_line('Event does not exist'); 
+        END IF;
+
+    -- Checking if Persons in the list exist in the person table. 
+    FOR i IN 1..plist.count LOOP        
+        SELECT Count(*) INTO psn FROM Person WHERE pid = plist(i);
+        IF psn = 0 THEN
+            dbms_output.put_line('Person does not exist');
+        END IF;
+    END LOOP;
+
+    -- Writing the person-event record if the record doesn't exist in Person_Event table.
+    FOR i IN 1..plist.count LOOP        
+        SELECT count(*) INTO psn_evnt FROM Person_Event WHERE pid = plist(i) AND eid = e_id;       
+            IF psn_evnt <> 0 THEN
+                dbms_output.put_line('No need to insert!');
+            ELSE
+                INSERT INTO Person_Event VALUES (plist(i), e_id);                
+            END IF;
+        END LOOP;   
+END;
+  
+SET SERVEROUTPUT ON;
+EXEC insertPersonsAtEvent(personsListType(12, 67, 20), 320);
+
+
+Feature 8______________________________________________________________________________________
+
+CREATE OR REPLACE PROCEDURE  printTestResults(p_pname VARCHAR, p_phone VARCHAR) 
+    IS  
+    CURSOR Curs IS
+        SELECT t_date, res FROM Tests 
+        WHERE pid IN (SELECT pid FROM Person Where p_name = p_pname AND phone = p_phone)
+        ORDER BY t_date DESC;
+    psn_id Person.pid%type;
+    t_date Tests.t_date%type;
+    t_result Tests.res%type;   
+BEGIN 
+    -- Getting the id of the person
+    SELECT pid into psn_id FROM Person Where p_name = p_pname AND phone = p_phone;
+    OPEN Curs;
+    
+    -- Printing all the results of the person in the Tests table.
+    LOOP 
+        FETCH Curs INTO t_date, t_result;
+        EXIT WHEN Curs%NotFound;
+        dbms_output.put_line('Test Date: ' || t_date || '   |   Result:  ' || t_result);
+    END LOOP;
+    EXCEPTION 
+        WHEN no_data_found THEN
+            dbms_output.put_line('No such person!');
+        WHEN too_many_rows THEN
+            dbms_output.put_line('Too many rows!');    
+END;
+
+SET SERVEROUTPUT ON;
+EXEC printTestResults('Vishal', '6672321006');
