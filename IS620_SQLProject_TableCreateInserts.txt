@@ -28,17 +28,24 @@ CREATE TABLE Person
  FOREIGN KEY (hid) REFERENCES Houses(hid)
  );
 
--- Created a primary key
+-- Created a primary key tIS with a sequence
 -- Changed the result column name to res as it is a reserved keyword
 -- Applied a constraint check on res. 
 CREATE TABLE Tests
- (
- pid INT,
- t_date DATE,
- res INT Check ( res In (0,1)),
- Primary Key (pid),
- FOREIGN KEY(pid) REFERENCES Person(pid)
- );
+  ( 
+     tid   NUMBER,
+     pid   INT, 
+     t_date DATE,
+     res INT Check ( res In (0,1)),
+     Primary Key (tid),
+     FOREIGN KEY(pid) REFERENCES Person(pid) 
+  ); 
+
+Create sequence test_sequence
+start with 1
+increment by 1
+minvalue 1
+maxvalue 10000;
 
 CREATE TABLE Events
  (
