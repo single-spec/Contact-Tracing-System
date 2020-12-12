@@ -72,9 +72,9 @@ per_name person.p_name%type;
 per_phone person.phone%type;
 per_status person.status%type;
 CURSOR C1 IS 
-	SELECT p.person_name, p.person_phone, p.person_status
+	SELECT p.p_name, p.phone, p.status
 	FROM person p, person p1
-	WHERE p1.person_status = 1 and p.house_id = p1.house_id;
+	WHERE p1.status = 1 and p.hid = p1.hid;
 BEGIN
 DBMS_OUTPUT.PUT_LINE('Person Name  ' || 'Person Phone Number  ' || 'Person Status' );
 OPEN C1;
@@ -84,6 +84,8 @@ EXIT WHEN C1%NOTFOUND;
 DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
 END LOOP;
 END;
+
+/
 
 SET SERVEROUTPUT ON;
 EXEC checkperson_status();
