@@ -1,0 +1,89 @@
+--MEMBER1:
+--Feature1:
+
+CREATE OR REPLACE PROCEDURE add_person (
+	add_name in varchar ,
+	add_address in varchar, 
+	add_zip in char,
+	add_phone in varchar)
+	
+IS
+per_exists int;
+add_verify int;
+h_id houses.hid%type;
+x_mid3 number;
+x_mid2 number;
+		
+BEGIN
+
+select count(*) into per_exists from person where  p_name = add_name and phone = add_phone;
+select count(*) into add_verify from Houses where address = add_address and zip = add_zip;
+--dbms_output.put_line(per_exists);
+--dbms_output.put_line(add_verify);
+
+--check if a person already exists with same name and phone number
+IF per_exists = 1 THEN
+    BEGIN
+	dbms_output.put_line('person already exists!');
+    END;
+
+ELSE
+    BEGIN
+	x_mid3 := mid_seq3.nextval;
+	x_mid2 := mid_seq2.nextval;
+	
+	IF add_verify = 1 THEN
+        select hid into h_id from houses where address = add_address;
+--		insert row into person
+		INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
+		dbms_output.put_line('person inserted with existing house');
+		dbms_output.put_line( 'Person Id: '  || x_mid3 || 'House Id: ' || h_id || 'Address: ' || add_address || 'Zipcode: ' || add_zip || ' Name:  ' || add_name || 'Phone number:  ' || add_phone || 'Status is:  ' || 'NULL');
+	
+    ELSE
+--	insert a row into house table and person table
+	INSERT INTO houses VALUES (x_mid2, add_address, add_zip);
+    select hid into h_id from houses where address = add_address;
+	INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
+	dbms_output.put_line('New house created with the newly assigned house id and a person inserted with the new person id');
+	END IF;
+
+    END;	
+END IF;
+
+EXCEPTION 
+    WHEN NO_DATA_FOUND THEN
+    dbms_output.put_line('No data found: Please try to insert information again!');	
+END;
+
+/
+
+set serveroutput on;
+
+exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 	--Success "Person already exists"
+exec add_person('Sonal', '1025 Howland Sq', '21227', '6672321011');		--Success row inserted in table Person
+exec add_person('Parimal', '1020 Algate Sq', '21222', '6672321023');		--Success row inserted in table Houses and Person
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--Feature2:
+
+CREATE OR REPLACE PROCEDURE checkperson_status IS
+per_name person.p_name%type;
+per_phone person.phone%type;
+per_status person.status%type;
+CURSOR C1 IS 
+	SELECT p.person_name, p.person_phone, p.person_status
+	FROM person p, person p1
+	WHERE p1.person_status = 1 and p.house_id = p1.house_id;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('Person Name  ' || 'Person Phone Number  ' || 'Person Status' );
+OPEN C1;
+LOOP
+FETCH C1 INTO per_name, per_phone, per_status;
+EXIT WHEN C1%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
+END LOOP;
+END;
+
+SET SERVEROUTPUT ON;
+EXEC checkperson_status();
