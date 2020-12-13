@@ -1,4 +1,30 @@
-SQL statements to create database tables:
+DROP SEQUENCE test_sequence;
+DROP SEQUENCE mid_seq2;
+DROP SEQUENCE mid_seq3;
+
+CREATE SEQUENCE test_sequence
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+MAXVALUE 10000;
+
+--created 2 sequences used in feature 1 and 2
+CREATE SEQUENCE mid_seq2
+START WITH 6;
+
+CREATE SEQUENCE mid_seq3 	 					
+START WITH 16;
+
+
+
+CREATE OR REPLACE TRIGGER updateStatus
+AFTER INSERT OR UPDATE OR DELETE ON Tests
+FOR EACH ROW
+BEGIN
+    UPDATE Person SET Status = :new.res WHERE Person.pid = :new.pid;
+END;
+
+------------------------------------------------------
 
 drop table Person_flight cascade constraints;
 drop table Flights cascade constraints;
@@ -12,7 +38,7 @@ CREATE TABLE Houses
  (
  hid INT,
  address VARCHAR(30),
- zip CHAR(5),
+ zip VARCHAR2(5),
  PRIMARY KEY(hid)
  );
 
@@ -40,12 +66,6 @@ CREATE TABLE Tests
      Primary Key (tid),
      FOREIGN KEY(pid) REFERENCES Person(pid) 
   ); 
-
-Create sequence test_sequence
-start with 1
-increment by 1
-minvalue 1
-maxvalue 10000;
 
 CREATE TABLE Events
  (
@@ -86,15 +106,8 @@ CREATE TABLE Person_flight
  FOREIGN KEY(pid) REFERENCES Person(pid),
  FOREIGN KEY(fid) REFERENCES Flights(fid)
  );
- 
- --created 2 sequences used in feature 1 and 2
-create sequence mid_seq3 					
-start with 16;
 
-create sequence mid_seq2
-start with 6;
-
-Table Inserts:
+-----------------------------------------------------------------------------------
 
 --insert values into table Houses
 insert into Houses values(1, '1025 Howland Sq', '21227');
@@ -104,11 +117,17 @@ insert into Houses values(4, '1028 Howland Sq', '21220');
 insert into Houses values(5, '1029 Howland Sq', '21221');
 
 --insert values into table Person 									#Updated the address values in the Person table
-insert into Person values(11, 1, '1025 Howland Sq', 'Rohan', '6672321002', 0);
-insert into Person values(12, 2, '1027 Howland Sq', 'Vikas',  '6672321003', 0);
-insert into Person values(13, 3, '1026 Howland Sq', 'Vickey', '6672321004', 1);
-insert into Person values(14, 4, '1028 Howland Sq', 'Vaishak', '6672321005', 1);
-insert into Person values(15, 5, '1029 Howland Sq', 'Vishal', '6672321006', 1);
+insert into Person values(11, 1, 'Rohan', '6672321002', 0);
+insert into Person values(12, 2, 'Vikas',  '6672321003', 0);
+insert into Person values(13, 3, 'Vickey', '6672321004', 1);
+insert into Person values(14, 4, 'Vaishak', '6672321005', 1);
+insert into Person values(15, 5, 'Vishal', '6672321006', 1);
+insert into Person values(17, 2, 'Vishal', '6672321006', 0);
+insert into Person values(16, 2, 'Vishal', '6672321006', 0);
+insert into Person values(18, 2, 'Vishal', '6672321006', 0);
+insert into Person values(19, 1, 'Vishal', '6672321006', 0);
+insert into Person values(20, 5, 'Vishal', '6672321006', 0);
+insert into Person values(21, 5, 'Vishal', '6672321006', 0);
 
 -- Updated the Insert Into test statements
 --insert values into table Tests
@@ -117,6 +136,13 @@ insert into Tests values(test_sequence.nextval, 12, date '2020-10-07', 0);
 insert into Tests values(test_sequence.nextval, 13, date '2010-08-08', 1);
 insert into Tests values(test_sequence.nextval, 15, date '2019-08-05', 0);
 insert into Tests values(test_sequence.nextval, 14, date '2020-09-01', 0);
+insert into Tests values(test_sequence.nextval, 16, date '2020-12-13', 1);
+insert into Tests values(test_sequence.nextval, 17, date '2020-12-14', 1);
+insert into Tests values(test_sequence.nextval, 18, date '2020-12-14', 1);
+insert into Tests values(test_sequence.nextval, 19, date '2020-12-05', 1);
+insert into Tests values(test_sequence.nextval, 20, date '2020-12-06', 1);
+insert into Tests values(test_sequence.nextval, 20, date '2020-12-08', 1);
+insert into Tests values(test_sequence.nextval, 11, date '2020-12-17', 1);
 
 --insert values into table Events
 insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
