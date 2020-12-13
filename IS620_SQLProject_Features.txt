@@ -63,7 +63,6 @@ exec add_person('Sonal', '1025 Howland Sq', '21227', '6672321011');		--Success r
 exec add_person('Parimal', '1020 Algate Sq', '21222', '6672321023');		--Success row inserted in table Houses and Person
 
 
-
 --Feature2________________________________________________________________________________________________SONAL JAYKUMAR INGLE______
 
 CREATE OR REPLACE PROCEDURE checkperson_status IS
@@ -71,9 +70,9 @@ per_name person.p_name%type;
 per_phone person.phone%type;
 per_status person.status%type;
 CURSOR C1 IS 
-	SELECT p.person_name, p.person_phone, p.person_status
+	SELECT p.p_name, p.phone, p.status
 	FROM person p, person p1
-	WHERE p1.person_status = 1 and p.house_id = p1.house_id;
+	WHERE p1.status = 1 and p.hid = p1.hid;
 BEGIN
 DBMS_OUTPUT.PUT_LINE('Person Name  ' || 'Person Phone Number  ' || 'Person Status' );
 OPEN C1;
@@ -84,13 +83,8 @@ DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || p
 END LOOP;
 END;
 
-SET SERVEROUTPUT ON;
-EXEC checkperson_status();
 
-
-
-
-Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
+--Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
 
 CREATE OR REPLACE TYPE phoneListType as varray(10) of INT;
 
