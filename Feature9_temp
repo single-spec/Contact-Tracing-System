@@ -2,8 +2,8 @@
 CREATE OR REPLACE PROCEDURE Feature_9 (
 input_pid1 in int,
 D1 in date,
-X1 number,
-Y1 number)
+X1 interval Day TO SECOND,
+Y1 interval Day TO SECOND)
 IS
 perid_exists int;
 
@@ -27,15 +27,15 @@ END;
 /
 
 SET SERVEROUTPUT ON;
-exec Feature_9(11,date '2020-08-08',20,20);
+exec Feature_9(16,date '2020-08-08',interval'20' day,interval'20' day);
 
 --------------------------------------------------------------------------
 -----------------step2,3,4,5--------------------------------------------
 CREATE OR REPLACE PROCEDURE Feature_9_sub (
 input_pid in int,
 D in date,
-X in number,
-Y in number
+X in interval Day TO SECOND,
+Y in interval Day TO SECOND
 )
 IS
 CURSOR C1 IS 
@@ -135,4 +135,4 @@ END;
 /
 
 SET SERVEROUTPUT ON;
-exec Feature_9_sub(11,date '2020-08-08',20,20);
+exec Feature_9_sub(16,date '2020-08-08',interval'20' day,interval'20' day);
