@@ -40,7 +40,7 @@ ELSE
 --	insert a row into house table and person table
 	INSERT INTO houses VALUES (x_mid2, add_address, add_zip);
     select hid into h_id from houses where address = add_address;
-	INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
+	INSERT INTO person VALUES (x_mid3, h_id, add_name,add_phone, NULL);
 	dbms_output.put_line('New house created with the newly assigned house id ' || h_id || ' and a person inserted with the new person id' || x_mid3);
 	END IF;
 
