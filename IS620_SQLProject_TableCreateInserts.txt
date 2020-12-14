@@ -22,6 +22,7 @@ AFTER INSERT OR UPDATE OR DELETE ON Tests
 FOR EACH ROW
 BEGIN
     UPDATE Person SET Status = :new.res WHERE Person.pid = :new.pid;
+    UPDATE Person p SET p.flag = 1 where (:old.res = 0 and :new.res = 1) or p.status=1;
 END;
 
 ------------------------------------------------------
@@ -50,6 +51,7 @@ CREATE TABLE Person
  p_name VARCHAR(15),
  phone VARCHAR(10),
  status INT Check ( status In (0,1)),
+ flag INT Check ( flag In (0,1)),
  PRIMARY KEY (pid),
  FOREIGN KEY (hid) REFERENCES Houses(hid)
  );
@@ -117,19 +119,19 @@ insert into Houses values(4, '1028 Howland Sq', '21220');
 insert into Houses values(5, '1029 Howland Sq', '21221');
 
 --insert values into table Person 
-insert into Person values(10, 1, 'Kirubel', '2405649308', 0);									#Updated the address values in the Person table
-insert into Person values(11, 1, 'Rohan', '6672321002', 0);
-insert into Person values(12, 2, 'Vikas',  '6672321003', 0);
-insert into Person values(13, 3, 'Vickey', '6672321004', 1);
-insert into Person values(14, 4, 'Vaishak', '6672321005', 1);
-insert into Person values(15, 5, 'Vishal', '6672321006', 1);
-insert into Person values(17, 2, 'Helen', '8872371001', 0);
-insert into Person values(16, 2, 'Ritviz', '8772321004', 1);
-insert into Person values(18, 2, 'Mithila', '8972321009', 1);
-insert into Person values(19, 1, 'Diya', '6012321001', 1);
-insert into Person values(20, 5, 'Bob', '8672321099', 1);
-insert into Person values(21, 5, 'Marshal', '6772321777', 0);
-insert into Person values(22, 5, 'Marta', '6772321723', 1);
+insert into Person values(10, 1, 'Kirubel', '2405649308', 0, 0);									#Updated the address values in the Person table
+insert into Person values(11, 1, 'Rohan', '6672321002', 0, 0);
+insert into Person values(12, 2, 'Vikas',  '6672321003', 0, 0);
+insert into Person values(13, 3, 'Vickey', '6672321004', 1, 0);
+insert into Person values(14, 4, 'Vaishak', '6672321005', 1, 0);
+insert into Person values(15, 5, 'Vishal', '6672321006', 1, 0);
+insert into Person values(17, 2, 'Helen', '8872371001', 0, 0);
+insert into Person values(16, 2, 'Ritviz', '8772321004', 1, 0);
+insert into Person values(18, 2, 'Mithila', '8972321009', 1, 0);
+insert into Person values(19, 1, 'Diya', '6012321001', 1, 0);
+insert into Person values(20, 5, 'Bob', '8672321099', 1, 0);
+insert into Person values(21, 5, 'Marshal', '6772321777', 0, 0);
+insert into Person values(22, 5, 'Marta', '6772321723', 1, 0);
 
 -- Updated the Insert Into test statements
 --insert values into table Tests
