@@ -38,6 +38,39 @@ exec Feature_9_sub(11,date '2020-12-17',interval'50' day,interval'50' day);
 
 --------------------------------------------------------------------------
 -----------------step2,3,4,5--------------------------------------------
+
+--Feature9:
+CREATE OR REPLACE PROCEDURE Feature_9 (
+input_pid1 in int,
+D1 in date,
+X1 interval Day TO SECOND,
+Y1 interval Day TO SECOND)
+IS
+perid_exists int;
+
+BEGIN
+select count(*) into perid_exists from Tests T where pid = input_pid1 and t_date = D1 and res = 1;
+dbms_output.put_line(perid_exists);
+
+--check if a person already exists with same pid and tested positive on input date
+IF perid_exists = 1 THEN
+    Feature_9_sub(input_pid1,D1,X1,Y1);
+ELSE
+	dbms_output.put_line('Please enter valid input Person ID and Date!!!');	
+
+END IF;
+	
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+    dbms_output.put_line('No data found: Please check the inputs!');
+END;
+
+/
+
+SET SERVEROUTPUT ON;
+exec Feature_9(18,date '2020-12-14',interval'20' day,interval'20' day);
+--------------------------------------------------------------------------
+-----------------step2,3,4,5--------------------------------------------
 CREATE OR REPLACE PROCEDURE Feature_9_sub (
 input_pid in int,
 D in date,
@@ -108,28 +141,28 @@ BEGIN
         select t_date,res into test_date,temp_res from Tests where pid = (select pid from Person where p_name = name_list3(counter3))and ROWNUM =1 order by t_date;
         IF D < test_date and test_date < D+Y and temp_res=1 THEN
             dbms_output.put_line('Close Contact(' ||counter3|| '):' ||name_list3(counter3));
-            dbms_output.put_line('The reason is person' || name_list3(counter3) || 'lives travelled on same flight as person with id '|| input_pid || ' and test date is: ' || test_date);
+            dbms_output.put_line('The reason is person' || name_list3(counter3) || 'travelled on same flight as person with id '|| input_pid || ' and test date is: ' || test_date);
         END IF;	
     END LOOP;
 
 FOR i1 in 1..name_list1.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i1);
-    dbms_output.put_line(input_pid_temp);
+-- dbms_output.put_line(input_pid_temp);
 	Feature_9_sub(input_pid_temp,test_date,X,Y);
 END LOOP;
 
 FOR i2 in 1..name_list2.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i2);
-    dbms_output.put_line(input_pid_temp);
+-- dbms_output.put_line(input_pid_temp);
 	Feature_9_sub(input_pid_temp,test_date,X,Y);
 END LOOP;
 
 FOR i3 in 1..name_list3.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i3);
-    dbms_output.put_line(input_pid_temp);
+-- dbms_output.put_line(input_pid_temp);
 	Feature_9_sub(input_pid_temp,test_date,X,Y);
 END LOOP;
 
