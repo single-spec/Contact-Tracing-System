@@ -3,7 +3,7 @@
 CREATE OR REPLACE PROCEDURE add_person (
 	add_name in varchar ,
 	add_address in varchar, 
-	add_zip in char,
+	add_zip in varchar,
 	add_phone in varchar)
 	
 IS
@@ -17,8 +17,6 @@ BEGIN
 
 select count(*) into per_exists from person where  p_name = add_name and phone = add_phone;
 select count(*) into add_verify from Houses where address = add_address and zip = add_zip;
---dbms_output.put_line(per_exists);
---dbms_output.put_line(add_verify);
 
 --check if a person already exists with same name and phone number
 IF per_exists = 1 THEN
@@ -43,7 +41,7 @@ ELSE
 	INSERT INTO houses VALUES (x_mid2, add_address, add_zip);
     select hid into h_id from houses where address = add_address;
 	INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
-	dbms_output.put_line('New house created with the newly assigned house id and a person inserted with the new person id');
+	dbms_output.put_line('New house created with the newly assigned house id ' || h_id || ' and a person inserted with the new person id' || x_mid3);
 	END IF;
 
     END;	
@@ -58,7 +56,7 @@ END;
 
 set serveroutput on;
 
-exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 	--Success "Person already exists"
+exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 		--Success "Person already exists"
 exec add_person('Sonal', '1025 Howland Sq', '21227', '6672321011');		--Success row inserted in table Person
 exec add_person('Parimal', '1020 Algate Sq', '21222', '6672321023');		--Success row inserted in table Houses and Person
 
@@ -69,11 +67,18 @@ CREATE OR REPLACE PROCEDURE checkperson_status IS
 per_name person.p_name%type;
 per_phone person.phone%type;
 per_status person.status%type;
+
 CURSOR C1 IS 
-	SELECT p.p_name, p.phone, p.status
-	FROM person p, person p1
-	WHERE p1.status = 1 and p.hid = p1.hid;
+    SELECT p_name, phone, status
+	FROM person
+	WHERE status = 1;
+
+CURSOR C2 IS
+    SELECT distinct p.p_name, p.phone, p.status
+	FROM person p, person p1, houses h
+	WHERE p.hid = p1.hid and p.pid != p1.pid and p.status = 0;
 BEGIN
+DBMS_OUTPUT.PUT_LINE('Peoples Name and Phone Number whose current status is Positive');
 DBMS_OUTPUT.PUT_LINE('Person Name  ' || 'Person Phone Number  ' || 'Person Status' );
 OPEN C1;
 LOOP
@@ -81,8 +86,22 @@ FETCH C1 INTO per_name, per_phone, per_status;
 EXIT WHEN C1%NOTFOUND;
 DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
 END LOOP;
+CLOSE C1;
+
+OPEN C2;
+DBMS_OUTPUT.PUT_LINE('Details of person living in the same house');
+LOOP
+FETCH C2 INTO per_name, per_phone, per_status;
+EXIT WHEN C2%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
+END LOOP;
+CLOSE C2;
 END;
 
+/
+
+SET SERVEROUTPUT ON;
+EXEC checkperson_status();
 
 --Feature 3______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
 CREATE OR replace PROCEDURE add_test(p_id     INT, 
