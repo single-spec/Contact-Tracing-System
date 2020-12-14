@@ -105,21 +105,21 @@ BEGIN
         END IF;	
     END LOOP;
 
-FOR i1 in 1..len(name_list1)
+FOR i1 in 1..name_list1.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i1);
     dbms_output.put_line(input_pid_temp);
 	Feature_9_sub(input_pid_temp,test_date,X,Y);
 END LOOP;
 
-FOR i2 in 1..len(name_list2)
+FOR i2 in 1..name_list2.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i2);
     dbms_output.put_line(input_pid_temp);
 	Feature_9_sub(input_pid_temp,test_date,X,Y);
 END LOOP;
 
-FOR i3 in 1..len(name_list3)
+FOR i3 in 1..name_list3.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i3);
     dbms_output.put_line(input_pid_temp);
