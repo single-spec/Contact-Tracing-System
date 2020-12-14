@@ -3,7 +3,7 @@
 CREATE OR REPLACE PROCEDURE add_person (
 	add_name in varchar ,
 	add_address in varchar, 
-	add_zip in char,
+	add_zip in varchar,
 	add_phone in varchar)
 	
 IS
@@ -17,8 +17,6 @@ BEGIN
 
 select count(*) into per_exists from person where  p_name = add_name and phone = add_phone;
 select count(*) into add_verify from Houses where address = add_address and zip = add_zip;
---dbms_output.put_line(per_exists);
---dbms_output.put_line(add_verify);
 
 --check if a person already exists with same name and phone number
 IF per_exists = 1 THEN
@@ -34,16 +32,16 @@ ELSE
 	IF add_verify = 1 THEN
         select hid into h_id from houses where address = add_address;
 --		insert row into person
-		INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
+		INSERT INTO person VALUES (x_mid3, h_id, add_name,add_phone, NULL);
 		dbms_output.put_line('person inserted with existing house');
-		dbms_output.put_line( 'Person Id: '  || x_mid3 || 'House Id: ' || h_id || 'Address: ' || add_address || 'Zipcode: ' || add_zip || ' Name:  ' || add_name || 'Phone number:  ' || add_phone || 'Status is:  ' || 'NULL');
+		dbms_output.put_line( 'Details are :: Person Id: '  || x_mid3 || 'House Id: ' || h_id || 'Address: ' || add_address || 'Zipcode: ' || add_zip || ' Name:  ' || add_name || 'Phone number:  ' || add_phone || 'Status is:  ' || 'NULL');
 	
     ELSE
 --	insert a row into house table and person table
 	INSERT INTO houses VALUES (x_mid2, add_address, add_zip);
     select hid into h_id from houses where address = add_address;
 	INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
-	dbms_output.put_line('New house created with the newly assigned house id and a person inserted with the new person id');
+	dbms_output.put_line('New house created with the newly assigned house id ' || h_id || ' and a person inserted with the new person id' || x_mid3);
 	END IF;
 
     END;	
@@ -58,7 +56,7 @@ END;
 
 set serveroutput on;
 
-exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 	--Success "Person already exists"
+exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 		--Success "Person already exists"
 exec add_person('Sonal', '1025 Howland Sq', '21227', '6672321011');		--Success row inserted in table Person
 exec add_person('Parimal', '1020 Algate Sq', '21222', '6672321023');		--Success row inserted in table Houses and Person
 
@@ -69,11 +67,18 @@ CREATE OR REPLACE PROCEDURE checkperson_status IS
 per_name person.p_name%type;
 per_phone person.phone%type;
 per_status person.status%type;
+
 CURSOR C1 IS 
-	SELECT p.p_name, p.phone, p.status
-	FROM person p, person p1
-	WHERE p1.status = 1 and p.hid = p1.hid;
+    SELECT p_name, phone, status
+	FROM person
+	WHERE status = 1;
+
+CURSOR C2 IS
+    SELECT distinct p.p_name, p.phone, p.status
+	FROM person p, person p1, houses h
+	WHERE p.hid = p1.hid and p.pid != p1.pid and p.status = 0;
 BEGIN
+DBMS_OUTPUT.PUT_LINE('Peoples Name and Phone Number whose current status is Positive');
 DBMS_OUTPUT.PUT_LINE('Person Name  ' || 'Person Phone Number  ' || 'Person Status' );
 OPEN C1;
 LOOP
@@ -81,7 +86,101 @@ FETCH C1 INTO per_name, per_phone, per_status;
 EXIT WHEN C1%NOTFOUND;
 DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
 END LOOP;
+CLOSE C1;
+
+OPEN C2;
+DBMS_OUTPUT.PUT_LINE('Details of person living in the same house');
+LOOP
+FETCH C2 INTO per_name, per_phone, per_status;
+EXIT WHEN C2%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE(per_name ||'          ' || per_phone || '            ' || per_status);
+END LOOP;
+CLOSE C2;
 END;
+
+/
+
+SET SERVEROUTPUT ON;
+EXEC checkperson_status();
+
+--Feature 3______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+CREATE OR replace PROCEDURE add_test(p_id     INT, 
+                                     testdate DATE, 
+                                     t_result INT) 
+IS 
+  v_count1 INT; 
+  v_count2 INT; 
+  v_tdate  DATE; 
+BEGIN 
+    SELECT Count(*) 
+    INTO   v_count1 
+    FROM   person 
+    WHERE  pid = p_id; 
+
+    IF v_count1 = 0 THEN 
+      dbms_output.Put_line('No such person'); 
+    ELSE 
+      dbms_output.Put_line('Person exists'); 
+
+      SELECT Count(*) 
+      INTO   v_count2 
+      FROM   tests 
+      WHERE  pid = p_id 
+             AND t_date <= testdate; 
+
+      IF v_count2 = 0 THEN 
+        dbms_output.Put_line('No existing test'); 
+        INSERT INTO tests VALUES( test_sequence.nextval, p_id, testdate, t_result); 
+      ELSE 
+        dbms_output.Put_line('test row exists for person'); 
+
+        SELECT Max(t_date) 
+        INTO   v_tdate 
+        FROM   tests 
+        WHERE  pid = p_id and v_tdate <=testdate; 
+
+        IF v_tdate = testdate THEN 
+          UPDATE tests 
+          SET    res = t_result 
+          WHERE  pid = p_id 
+                 AND v_tdate = testdate; 
+        ELSE 
+          UPDATE person 
+          SET    status = t_result 
+          WHERE  pid = p_id 
+                 AND v_tdate < testdate; 
+        END IF; 
+      END IF; 
+    END IF; 
+    EXCEPTION 
+        WHEN no_data_found THEN
+            dbms_output.put_line('No such person!');
+        WHEN too_many_rows THEN
+            dbms_output.put_line('Too many rows!');
+END; 
+
+--Testing
+set serveroutput ON 
+select * from Tests;
+select * from person;
+--invalid id 
+exec add_test(1000, DATE '2020-08-08', 0); 
+
+--no existing test for newly added person 
+INSERT INTO person 
+VALUES     (30, 
+            1,  
+            'Harry', 
+            '6672321002', 
+            0); 
+exec add_test(30, DATE '2020-08-08', 1); 
+SELECT * FROM   person; 			--to check the inserted row in Person
+SELECT * FROM   tests; 				--to check the inserted row in Tests
+
+--normal cases 
+exec add_test(16, DATE '2020-10-08', 1); 	-- test exists
+SELECT * FROM   person;  
+SELECT * FROM   tests;
 
 
 --Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
@@ -179,6 +278,69 @@ EXEC printTestResults('Kirubel', '2405649308');
 --Case 3: Person and test result exists.
 EXEC printTestResults('Rohan', '6672321002');
 ROLLBACK;
+
+--Feature 10______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+
+CREATE OR replace PROCEDURE print_stats(x interval day TO second) 
+IS 
+  CURSOR c1 IS 
+    SELECT DISTINCT count(*) AS c, 
+                    zip 
+    FROM            houses h, 
+                    person p 
+    WHERE           p.hid = h.hid 
+    AND             p.status = 1 
+    GROUP BY        zip; 
+
+CURSOR c3 IS 
+  SELECT   count(DISTINCT t.pid) AS ct, 
+           zip 
+  FROM     tests t, 
+           person p, 
+           houses h 
+  WHERE    t.pid = p.pid 
+  AND      p.hid = h.hid 
+  AND      t.res=1 
+  GROUP BY zip; 
+
+v_part2 INT; 
+BEGIN 
+  dbms_output.Put_line('Part 1) '); 
+  dbms_output.Put_line('Total number of people who has positive status in the database, and number of such people in each zip code:');
+  FOR r IN c1 
+  LOOP 
+    dbms_output.Put_line('zip :' 
+    || r.zip 
+    ||' count : ' 
+    || r.c); 
+  END LOOP; 
+  
+  dbms_output.Put_line('Part 2)'); 
+  dbms_output.Put_line('Total number of distinctive people tested positive in the given days'); 
+  SELECT count(DISTINCT t1.pid) 
+  INTO   v_part2 
+  FROM   tests t1, 
+         tests t2, 
+         person p 
+  WHERE  t1.pid = p.pid 
+  AND    t1.res=1 
+  AND    t1.t_date <= t2.t_date+x 
+  AND    t1.t_date > t2.t_date; 
+   
+  dbms_output.Put_line(v_part2); 
+  
+  dbms_output.Put_line('Part 3) '); 
+  dbms_output.Put_line('Accumulated number of people tested positive in each zip code');
+
+  FOR r IN c3 
+  LOOP
+    dbms_output.Put_line('zip :' || r.zip ||' count : ' || r.ct); 
+  END LOOP; 
+END; 
+
+--Testing 
+SET serveroutput ON 
+EXEC print_stats(interval '3' day);
 
 --Feature 12______________________________________________________________________________________KIRUBL TOLOSA____________
 
