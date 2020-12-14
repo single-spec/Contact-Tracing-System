@@ -360,14 +360,18 @@ CURSOR c3 IS
            houses h 
   WHERE    t.pid = p.pid 
   AND      p.hid = h.hid 
-  AND      t.res=1 
+  AND      (p.flag=1 or p.status=1) 
   GROUP BY zip; 
 
 v_part2 INT; 
+v_cn INT;
+
 BEGIN 
   dbms_output.Put_line('Part 1) '); 
-  dbms_output.Put_line('Total number of people who has positive status in the database, and number of such people in each zip code:');
-  FOR r IN c1 
+  select count(*) into v_cn from Person where status = 1;
+  dbms_output.Put_line('Total number of people who has positive status in the database');
+  dbms_output.Put_line(v_cn);
+  dbms_output.Put_line('number of such people in each zip code:');  FOR r IN c1 
   LOOP 
     dbms_output.Put_line('zip :' 
     || r.zip 
@@ -384,8 +388,7 @@ BEGIN
          person p 
   WHERE  t1.pid = p.pid 
   AND    t1.res=1 
-  AND    t1.t_date <= t2.t_date+x 
-  AND    t1.t_date > t2.t_date; 
+  AND    t1.t_date between t2.t_date and t2.t_date+x;
    
   dbms_output.Put_line(v_part2); 
   
