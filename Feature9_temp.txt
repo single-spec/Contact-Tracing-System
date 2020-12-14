@@ -82,10 +82,10 @@ CURSOR C1 IS
 	select p.p_name from person p, person p1 where p1.pid = input_pid and p.hid = p1.hid and p.pid != p1.pid;
 	
 CURSOR C2 IS
-	select p.p_name from person_event pe1,person_event pe2,events e,person p where pe1.eid= pe2.eid and e.eid=pe1.eid and p.pid=pe1.pid and pe1.pid<>pe2.pid and pe2.pid = 11 and e.e_date BETWEEN D-X AND D;
+	select p.p_name from person_event pe1,person_event pe2,events e,person p where pe1.eid= pe2.eid and e.eid=pe1.eid and p.pid=pe1.pid and pe1.pid<>pe2.pid and pe2.pid = input_pid and e.e_date BETWEEN D-X AND D;
 	
 CURSOR C3 IS
-	select p.p_name from person_flight pf1,person_flight pf2,flights f,person p where pf1.fid= pf2.fid and f.fid=pf1.fid and p.pid=pf1.pid and pf1.pid<>pf2.pid and pf2.pid = 11 and f.f_date BETWEEN D-X AND D;
+	select p.p_name from person_flight pf1,person_flight pf2,flights f,person p where pf1.fid= pf2.fid and f.fid=pf1.fid and p.pid=pf1.pid and pf1.pid<>pf2.pid and pf2.pid = input_pid and f.f_date BETWEEN D-X AND D;
 	
 TYPE c_list1 IS TABLE of Person.p_name%type INDEX BY binary_integer;
 name_list1 c_list1;
