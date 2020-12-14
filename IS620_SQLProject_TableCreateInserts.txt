@@ -164,6 +164,7 @@ insert into Flights values(1112, date '2020-10-08', 'AA 820');
 insert into Flights values(1113, date '2017-08-18', 'BA 821');
 insert into Flights values(1114, date '2020-10-28', 'GF 823');
 insert into Flights values(1115, date '2010-11-08', 'DL 824');
+insert into Flights values(1116, date '2020-12-10', 'DL 613');
 
 --insert values into table Person_flight
 insert into Person_flight values(11, 1111);
@@ -171,3 +172,6 @@ insert into Person_flight values(12, 1112);
 insert into Person_flight values(11, 1114);
 insert into Person_flight values(13, 1114);
 insert into Person_flight values(14, 1111);
+insert into Person_flight values(20, 1116);
+insert into Person_flight values(17, 1116);
+
