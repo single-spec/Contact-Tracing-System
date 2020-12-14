@@ -27,7 +27,14 @@ END;
 /
 
 SET SERVEROUTPUT ON;
-exec Feature_9(16,date '2020-12-13',interval'20' day,interval'20' day);
+--TEST CASE 1--INVALID INPUT
+SET SERVEROUTPUT ON;
+exec Feature_9(15,date '2019-08-05',interval'50' day,interval'50' day);
+
+--TEST CASE 2--VALID
+SET SERVEROUTPUT ON;
+exec Feature_9_sub(11,date '2020-12-17',interval'50' day,interval'50' day);
+
 
 --------------------------------------------------------------------------
 -----------------step2,3,4,5--------------------------------------------
@@ -130,9 +137,3 @@ EXCEPTION
 	WHEN NO_DATA_FOUND THEN
     dbms_output.put_line('The transmission chain ends here....No more persons affected!');
 END;
-
-
-/
-
-SET SERVEROUTPUT ON;
-exec Feature_9_sub(16,date '2020-12-13',interval'20' day,interval'20' day);
