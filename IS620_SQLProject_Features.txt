@@ -243,6 +243,103 @@ END;
 SET serveroutput ON; 
 EXEC list_people(interval '10' day);
 
+
+--Feature 5--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+
+create sequence event_sequence
+set serveroutput ON; 
+CREATE OR replace PROCEDURE Add_event(v_ename    IN EVENTS.e_name%TYPE, 
+                                      v_edate    IN EVENTS.e_date%TYPE, 
+                                      v_eaddress IN EVENTS.e_address%TYPE) 
+IS 
+  v_count INT; 
+  v_eid   INT; 
+BEGIN 
+    SELECT Count(*) 
+    INTO   v_count 
+    FROM   EVENTS 
+    WHERE  e_date = v_edate 
+           AND e_name = v_ename; 
+
+    IF v_count = 1 THEN 
+      SELECT eid 
+      INTO   v_eid 
+      FROM   EVENTS 
+      WHERE  e_date = v_edate 
+             AND e_name = v_ename; 
+
+      dbms_output.Put_line('Event exits'); 
+    ELSE 
+      INSERT INTO EVENTS 
+      VALUES      (event_sequence.NEXTVAL, 
+                   v_ename, 
+                   v_edate, 
+                   v_eaddress); 
+
+      dbms_output.Put_line('Event Created'); 
+    END IF; 
+EXCEPTION 
+  WHEN no_data_found THEN 
+             dbms_output.Put_line('No Data Found'); 
+END; 
+
+/ 
+SET serveroutput ON; 
+--TESTS 
+--Case 1: Already existing event 
+exec Add_event ('victor', DATE '2011-09-05', '4142 greenville' ); 
+--Case 1: New event 
+exec Add_event ('testEvent', DATE '2011-04-07', '4142 Howard'); 
+ROLLBACK 
+
+exec add_event ('victor', date '2011-09-05', '4142 greenville' ) -- already existing event
+
+exec add_event ('victorerwe', date '2011-04-06', '4142 Howland'); -- new event
+
+--Feature 6--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+set serveroutput on;
+create or replace procedure list_PositiveEvent(number_of_days in number)
+is
+cursor c1 is select p_name,phone from Person where Person.status = 1;
+cursor c2 is select p1.p_name, p1.phone from Person p1, Person_event ep,Events e
+where e.eid = ep.eid and p1.pid = ep.pid and e.e_date - sysdate <= number_of_days and p1.status = 1;
+
+	v_p_name Person.p_name%TYPE;
+	v_phone Person.phone%TYPE;
+	p1_p_name Person.p_name%TYPE;
+	p1_phone Person.phone%TYPE;
+
+BEGIN
+OPEN c1;
+LOOP
+ FETCH c1 INTO v_p_name, v_phone;
+ 
+DBMS_OUTPUT.PUT_LINE('the person name is '||v_p_name||'phone number is '|| v_phone);
+EXIT WHEN c1%NOTFOUND;
+
+OPEN c2;
+LOOP
+FETCH c2 INTO p1_p_name,p1_phone;
+if p1_p_name is not null and p1_p_name <> v_p_name  and  p1_phone <> v_phone then 
+DBMS_OUTPUT.PUT_LINE('the person associated is '||p1_p_name||'phone number is   '||p1_phone);
+
+else 
+DBMS_OUTPUT.PUT_LINE('no person is present');
+end if;
+EXIT WHEN c2%NOTFOUND;
+
+END LOOP;
+CLOSE c2;
+END LOOP;
+CLOSE c1;
+END;
+/
+
+exec list_PositiveEvent (5)
+
+
+
+
 --Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
 
 CREATE OR REPLACE TYPE phoneListType as varray(10) of INT;
@@ -404,6 +501,117 @@ END;
 --Testing 
 SET serveroutput ON 
 EXEC print_stats(interval '3' day);
+
+--Feature 11--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+
+CREATE OR replace PROCEDURE Daily_stats(st_date  IN DATE, 
+                                        end_date IN DATE) 
+IS 
+  CURSOR c1 IS 
+    SELECT t_date, 
+           Count(pid) AS pcount 
+    FROM   tests 
+    WHERE  res = 1 
+           AND t_date BETWEEN st_date AND end_date 
+    GROUP  BY t_date 
+    HAVING Count(pid) <= 1; 
+  CURSOR c2 IS 
+    SELECT pt.t_date     AS tpdate, 
+           Count(pt.pid) AS ppcount 
+    FROM   person p, 
+           tests pt 
+    WHERE  p.pid = pt.pid 
+           AND p.status IS NULL 
+           AND pt.res = 1 
+           AND pt.t_date BETWEEN st_date AND end_date 
+    GROUP  BY pt.t_date 
+    HAVING Count(pt.pid) <= 1; 
+  CURSOR c3 IS 
+    SELECT t_date     AS cdate, 
+           Count(pid) AS ccount 
+    FROM   tests 
+    WHERE  res = 1 
+           AND t_date BETWEEN st_date AND end_date 
+           AND pid NOT IN (SELECT pid 
+                           FROM   tests 
+                           WHERE  res = 0 
+                                  AND t_date BETWEEN st_date AND end_date) 
+    GROUP  BY t_date 
+    HAVING Count(pid) <= 1; 
+  CURSOR c4 IS 
+    SELECT t_date     AS rdate, 
+           Count(pid) AS rcount 
+    FROM   tests 
+    WHERE  res = 0 
+           AND t_date BETWEEN st_date AND end_date 
+           AND pid IN (SELECT pid 
+                       FROM   tests 
+                       WHERE  res = 1 
+                              AND t_date BETWEEN st_date AND end_date) 
+    GROUP  BY t_date 
+    HAVING Count(pid) <= 1; 
+  v_date   DATE; 
+  v_count  INT; 
+  vp_date  DATE; 
+  vp_count INT; 
+  m_date   DATE; 
+  m_count  INT; 
+  y_date   DATE; 
+  n_count  INT; 
+BEGIN 
+    FOR pstats IN c1 LOOP 
+        v_date := pstats.t_date; 
+
+        dbms_output.Put_line(v_date); 
+
+        v_count := pstats.pcount; 
+
+        dbms_output.Put_line('Daily acc count ' 
+                             || v_count); 
+    END LOOP; 
+
+    FOR p_new_stats IN c2 LOOP 
+        vp_date := p_new_stats.tpdate; 
+
+        dbms_output.Put_line(vp_date); 
+
+        vp_count := p_new_stats.ppcount; 
+
+        dbms_output.Put_line('Daily new ' 
+                             || vp_count); 
+    END LOOP; 
+
+    FOR current_stats IN c3 LOOP 
+        m_date := current_stats.cdate; 
+
+        dbms_output.Put_line(m_date); 
+
+        m_count := current_stats.ccount; 
+
+        dbms_output.Put_line('current cases ' 
+                             || m_count); 
+    END LOOP; 
+
+    FOR recover_stats IN c4 LOOP 
+        y_date := recover_stats.rdate; 
+
+        dbms_output.Put_line(y_date); 
+
+        n_count := recover_stats.rcount; 
+
+        dbms_output.Put_line('Recover count ' 
+                             || n_count); 
+    END LOOP; 
+END; 
+
+/ 
+exec daily_stats (DATE '2020-12-08', DATE '2020-12-17') 
+
+exec daily_stats (DATE '2010-08-08', DATE '2020-12-13') 
+
+exec daily_stats (DATE '2019-08-05', DATE '2020-12-05') 
+
+
 
 --Feature 12______________________________________________________________________________________KIRUBL TOLOSA____________
 
