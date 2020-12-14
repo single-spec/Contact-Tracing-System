@@ -183,6 +183,54 @@ SELECT * FROM   person;
 SELECT * FROM   tests;
 
 
+--Feature 4______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+CREATE OR replace PROCEDURE list_people(x interval day TO second) 
+IS 
+  CURSOR c1 IS 
+    SELECT p_name, 
+           phone 
+    FROM   person 
+    WHERE  status =1; 
+
+CURSOR c2 IS 
+  SELECT DISTINCT p2.p_name, 
+                  p2.phone 
+  FROM            person p1, 
+                  person p2, 
+                  person_flight pf1, 
+                  person_flight pf2, 
+                  flights f 
+  WHERE           p1.status = 1 
+  AND             p2.status = 0 
+  AND             pf1.fid = pf2.fid 
+  AND             pf1.pid = p1.pid 
+  AND             pf2.pid = p2.pid 
+  AND             f.f_date BETWEEN SYSDATE-x AND SYSDATE; 
+
+BEGIN 
+  dbms_output.Put_line('List of people tested positive '); 
+  FOR r IN c1 
+  LOOP 
+    dbms_output.Put_line('Name: ' 
+    || r.p_name 
+    || ' ,Phone: ' 
+    || r.phone); 
+  END LOOP; 
+  dbms_output.Put_line('List of people travelling in same flight as above: '); 
+  FOR r IN c2 
+  LOOP 
+    EXIT 
+  WHEN c2%NOTFOUND; 
+    dbms_output.Put_line('Name: ' 
+    || r.p_name 
+    || ' ,Phone: ' 
+    || r.phone); 
+  END LOOP; 
+END; 
+--Testing 
+SET serveroutput ON; 
+EXEC list_people(interval '10' day);
+
 --Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
 
 CREATE OR REPLACE TYPE phoneListType as varray(10) of INT;
