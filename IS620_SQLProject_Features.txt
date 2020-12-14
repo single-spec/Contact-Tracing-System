@@ -84,6 +84,63 @@ END LOOP;
 END;
 
 
+--Feature 3______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+CREATE OR replace PROCEDURE add_test(p_id     INT, 
+                                     testdate DATE, 
+                                     t_result INT) 
+IS 
+  v_count1 INT; 
+  v_count2 INT; 
+  v_tdate  DATE; 
+BEGIN 
+    SELECT Count(*) 
+    INTO   v_count1 
+    FROM   person 
+    WHERE  pid = p_id; 
+
+    IF v_count1 = 0 THEN 
+      dbms_output.Put_line('No such person'); 
+    ELSE 
+      dbms_output.Put_line('Person exists'); 
+
+      SELECT Count(*) 
+      INTO   v_count2 
+      FROM   tests 
+      WHERE  pid = p_id 
+             AND t_date <= testdate; 
+
+      IF v_count2 = 0 THEN 
+        dbms_output.Put_line('No existing test'); 
+        INSERT INTO tests VALUES( test_sequence.nextval, p_id, testdate, t_result); 
+      ELSE 
+        dbms_output.Put_line('test row exists for person'); 
+
+        SELECT Max(t_date) 
+        INTO   v_tdate 
+        FROM   tests 
+        WHERE  pid = p_id and v_tdate <=testdate; 
+
+        IF v_tdate = testdate THEN 
+          UPDATE tests 
+          SET    res = t_result 
+          WHERE  pid = p_id 
+                 AND v_tdate = testdate; 
+        ELSE 
+          UPDATE person 
+          SET    status = t_result 
+          WHERE  pid = p_id 
+                 AND v_tdate < testdate; 
+        END IF; 
+      END IF; 
+    END IF; 
+    EXCEPTION 
+        WHEN no_data_found THEN
+            dbms_output.put_line('No such person!');
+        WHEN too_many_rows THEN
+            dbms_output.put_line('Too many rows!');
+END; 
+
+
 --Feature 7____________________________________________________________________________________________KIRUBL TOLOSA____________
 
 CREATE OR REPLACE TYPE phoneListType as varray(10) of INT;
