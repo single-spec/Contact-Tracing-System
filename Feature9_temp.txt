@@ -38,39 +38,6 @@ exec Feature_9_sub(11,date '2020-12-17',interval'50' day,interval'50' day);
 
 --------------------------------------------------------------------------
 -----------------step2,3,4,5--------------------------------------------
-
---Feature9:
-CREATE OR REPLACE PROCEDURE Feature_9 (
-input_pid1 in int,
-D1 in date,
-X1 interval Day TO SECOND,
-Y1 interval Day TO SECOND)
-IS
-perid_exists int;
-
-BEGIN
-select count(*) into perid_exists from Tests T where pid = input_pid1 and t_date = D1 and res = 1;
-dbms_output.put_line(perid_exists);
-
---check if a person already exists with same pid and tested positive on input date
-IF perid_exists = 1 THEN
-    Feature_9_sub(input_pid1,D1,X1,Y1);
-ELSE
-	dbms_output.put_line('Please enter valid input Person ID and Date!!!');	
-
-END IF;
-	
-EXCEPTION
-	WHEN NO_DATA_FOUND THEN
-    dbms_output.put_line('No data found: Please check the inputs!');
-END;
-
-/
-
-SET SERVEROUTPUT ON;
-exec Feature_9(18,date '2020-12-14',interval'20' day,interval'20' day);
---------------------------------------------------------------------------
------------------step2,3,4,5--------------------------------------------
 CREATE OR REPLACE PROCEDURE Feature_9_sub (
 input_pid in int,
 D in date,
