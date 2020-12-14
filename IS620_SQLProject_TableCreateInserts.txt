@@ -13,7 +13,7 @@ CREATE SEQUENCE mid_seq2
 START WITH 6;
 
 CREATE SEQUENCE mid_seq3 	 					
-START WITH 16;
+START WITH 22;
 
 
 
@@ -122,12 +122,12 @@ insert into Person values(12, 2, 'Vikas',  '6672321003', 0);
 insert into Person values(13, 3, 'Vickey', '6672321004', 1);
 insert into Person values(14, 4, 'Vaishak', '6672321005', 1);
 insert into Person values(15, 5, 'Vishal', '6672321006', 1);
-insert into Person values(17, 2, 'Vishal', '6672321006', 0);
-insert into Person values(16, 2, 'Vishal', '6672321006', 0);
-insert into Person values(18, 2, 'Vishal', '6672321006', 0);
-insert into Person values(19, 1, 'Vishal', '6672321006', 0);
-insert into Person values(20, 5, 'Vishal', '6672321006', 0);
-insert into Person values(21, 5, 'Vishal', '6672321006', 0);
+insert into Person values(17, 2, 'Helen', '8872371001', 0);
+insert into Person values(16, 2, 'Ritviz', '8772321004', 1);
+insert into Person values(18, 2, 'Mithila', '8972321009', 1);
+insert into Person values(19, 1, 'Diya', '6012321001', 1);
+insert into Person values(20, 5, 'Bob', '8672321099', 1);
+insert into Person values(21, 5, 'Marshal', '6772321777', 0);
 
 -- Updated the Insert Into test statements
 --insert values into table Tests
