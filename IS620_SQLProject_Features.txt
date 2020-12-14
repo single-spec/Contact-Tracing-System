@@ -385,6 +385,7 @@ CREATE OR REPLACE PROCEDURE  findHotSpots(D date, X number, Y number)
     TYPE Counts IS TABLE OF NUMBER INDEX BY VARCHAR2(5);
     new_counts Counts;
     old_counts Counts;
+    is_found_rec boolean := false;  
     
 BEGIN   
     -- Getting old counts
@@ -401,19 +402,29 @@ BEGIN
         FETCH Curs2 INTO zip_Code, new_cases;
         EXIT WHEN Curs2%NotFound;
         new_counts(zip_Code) := new_cases;          
-        IF old_counts.EXISTS(zip_Code) AND new_counts(zip_Code) > 0 THEN
+        IF NOT old_counts.EXISTS(zip_Code) OR new_counts(zip_Code) > 0 THEN
             dbms_output.put_line('Hotspot:  ' || zip_code); 
-        ELSIF NOT old_counts.Exists(zip_Code) THEN
-            dbms_output.put_line('Hotspot:  ' || zip_code); 
+            is_found_rec := true;
         END IF;
-        -- dbms_output.put_line('Zip: ' || zip_Code || '  |  Old case count:  ' || new_cases);
     END LOOP;     
     CLOSE Curs2;
-    CLOSE Curs1;     
+    CLOSE Curs1; 
+    IF NOT is_found_rec THEN
+            dbms_output.put_line('No hotspots found. No new cases registered!'); 
+    END IF;
 END;
 
--- Testing
-SET SERVEROUTPUT ON
-EXEC findHotSpots(date '2020-12-19', 15, 1);
+
+SET SERVEROUTPUT ON;
+--TESTS
+--Case 1: New cases discovered! 
+EXEC findHotSpots(date '2020-10-10', 10, 1);
+
+--Case 3: No new cases registered.
+EXEC findHotSpots(date '2020-10-20', 10, 1);
+
+--Case 3: Rising cases, new hotspots.
+EXEC findHotSpots(date '2020-10-30', 10, 1);
+ROLLBACK;
 
 --Feature #______________________________________________________________________________________NAME LASTNAME____________

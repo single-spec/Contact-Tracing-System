@@ -129,6 +129,7 @@ insert into Person values(18, 2, 'Mithila', '8972321009', 1);
 insert into Person values(19, 1, 'Diya', '6012321001', 1);
 insert into Person values(20, 5, 'Bob', '8672321099', 1);
 insert into Person values(21, 5, 'Marshal', '6772321777', 0);
+insert into Person values(22, 5, 'Marta', '6772321723', 1);
 
 -- Updated the Insert Into test statements
 --insert values into table Tests
@@ -144,7 +145,18 @@ insert into Tests values(test_sequence.nextval, 19, date '2020-12-05', 1);
 insert into Tests values(test_sequence.nextval, 20, date '2020-12-06', 1);
 insert into Tests values(test_sequence.nextval, 20, date '2020-12-08', 1);
 insert into Tests values(test_sequence.nextval, 11, date '2020-12-17', 1);
+insert into Tests values(test_sequence.nextval, 21, date '2020-10-25', 1);
+insert into Tests values(test_sequence.nextval, 22, date '2020-10-25', 1);
 
+--Updated Values of the records in the Tests table
+Update Tests  Set t_date = date '2020-10-02', res = 1 Where pid = 15;
+Update Tests  Set t_date = date '2020-10-02', res = 1 Where pid = 20;
+Update Tests  Set t_date = date '2020-10-05', res = 1 Where pid = 16;
+Update Tests  Set t_date = date '2020-10-05', res = 1 Where pid = 17;
+Update Tests  Set t_date = date '2020-10-21', res = 1 Where pid = 11;
+Update Tests  Set t_date = date '2020-10-21', res = 1 Where pid = 19;
+Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 21;
+Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 22;
 
 --insert values into table Events
 insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
