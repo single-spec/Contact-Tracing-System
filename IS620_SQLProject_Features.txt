@@ -32,9 +32,9 @@ ELSE
 	IF add_verify = 1 THEN
         select hid into h_id from houses where address = add_address;
 --		insert row into person
-		INSERT INTO person VALUES (x_mid3, h_id, add_address,add_name,add_phone, NULL);
+		INSERT INTO person VALUES (x_mid3, h_id, add_name,add_phone, NULL);
 		dbms_output.put_line('person inserted with existing house');
-		dbms_output.put_line( 'Person Id: '  || x_mid3 || 'House Id: ' || h_id || 'Address: ' || add_address || 'Zipcode: ' || add_zip || ' Name:  ' || add_name || 'Phone number:  ' || add_phone || 'Status is:  ' || 'NULL');
+		dbms_output.put_line( 'Details are :: Person Id: '  || x_mid3 || 'House Id: ' || h_id || 'Address: ' || add_address || 'Zipcode: ' || add_zip || ' Name:  ' || add_name || 'Phone number:  ' || add_phone || 'Status is:  ' || 'NULL');
 	
     ELSE
 --	insert a row into house table and person table
