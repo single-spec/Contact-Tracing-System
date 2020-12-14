@@ -97,30 +97,39 @@ BEGIN
     -- Checking if event exists in the event table.
     SELECT Count(*) into evnt FROM Events Where eid = e_id;
         IF evnt = 0 THEN 
-            dbms_output.put_line('Event does not exist'); 
+            dbms_output.put_line('Event  ' || e_id ||'  does not exist'); 
+        ELSE 
+            -- Checking if Persons in the list exist in the person table. 
+            FOR i IN 1..plist.count LOOP        
+                SELECT Count(*) INTO psn FROM Person WHERE pid = plist(i);
+                IF psn = 0 THEN
+                    dbms_output.put_line('Person  ' || plist(i) || '  does not exist');
+                ELSE                    
+                    -- Writing the person-event record if the record doesn't exist in Person_Event table.                            
+                    SELECT count(*) INTO psn_evnt FROM Person_Event WHERE pid = plist(i) AND eid = e_id;       
+                    IF psn_evnt <> 0 THEN
+                        dbms_output.put_line('No need to insert Person: '|| plist(i) || '  Event: ' || e_id || '  combination!');
+                    ELSE
+                        INSERT INTO Person_Event VALUES (plist(i), e_id);  
+                        dbms_output.put_line('Inserted Person  ' || plist(i) || '  and Event:  ' || e_id || '  combination to Person_Event table!');
+                    END IF;                       
+                END IF;
+            END LOOP;    
         END IF;
-
-    -- Checking if Persons in the list exist in the person table. 
-    FOR i IN 1..plist.count LOOP        
-        SELECT Count(*) INTO psn FROM Person WHERE pid = plist(i);
-        IF psn = 0 THEN
-            dbms_output.put_line('Person does not exist');
-        END IF;
-    END LOOP;
-
-    -- Writing the person-event record if the record doesn't exist in Person_Event table.
-    FOR i IN 1..plist.count LOOP        
-        SELECT count(*) INTO psn_evnt FROM Person_Event WHERE pid = plist(i) AND eid = e_id;       
-            IF psn_evnt <> 0 THEN
-                dbms_output.put_line('No need to insert!');
-            ELSE
-                INSERT INTO Person_Event VALUES (plist(i), e_id);                
-            END IF;
-        END LOOP;   
 END;
-  
+ 
 SET SERVEROUTPUT ON;
+--TESTS
+--Case 1: Event doesn't exist.
 EXEC insertPersonsAtEvent(personsListType(12, 67, 20), 320);
+
+--Case 2: Some persons don't exist and a combination exists.
+EXEC insertPersonsAtEvent(personsListType(11, 33, 44), 311);
+
+--Case 3: Person and Event esist, but combination doesn't exist. 
+EXEC insertPersonsAtEvent(personsListType(17, 18, 19), 311);
+
+ROLLBACK;
 
 
 --Feature 8___________________________________________________________________________________________KIRUBL TOLOSA____________
@@ -131,30 +140,45 @@ CREATE OR REPLACE PROCEDURE  printTestResults(p_pname VARCHAR, p_phone VARCHAR)
         SELECT t_date, res FROM Tests 
         WHERE pid IN (SELECT pid FROM Person Where p_name = p_pname AND phone = p_phone)
         ORDER BY t_date DESC;
-    psn_id Person.pid%type;
+    p_id NUMBER;
+    test_count NUMBER;
     t_date Tests.t_date%type;
     t_result Tests.res%type;   
 BEGIN 
     -- Getting the id of the person
-    SELECT pid into psn_id FROM Person Where p_name = p_pname AND phone = p_phone;
-    OPEN Curs;
-    
-    -- Printing all the results of the person in the Tests table.
-    LOOP 
-        FETCH Curs INTO t_date, t_result;
-        EXIT WHEN Curs%NotFound;
-        dbms_output.put_line('Test Date: ' || t_date || '   |   Result:  ' || t_result);
-    END LOOP;
+    SELECT pid into p_id FROM Person Where p_name = p_pname AND phone = p_phone;
+    SELECT count(*) into test_count FROM Tests Where pid = p_id;
+    IF test_count = 0 THEN
+        dbms_output.put_line('Person doesnt have a test result on record!');   
+    ELSE    
+        OPEN Curs;    
+        -- Printing all the results of the person in the Tests table.
+        LOOP 
+            FETCH Curs INTO t_date, t_result;
+            EXIT WHEN Curs%NotFound;            
+            dbms_output.put_line('Test Date: ' || t_date || '   |   Result:  ' || t_result);
+        END LOOP;
+        CLOSE Curs;
+    END IF;
     EXCEPTION 
         WHEN no_data_found THEN
             dbms_output.put_line('No such person!');
         WHEN too_many_rows THEN
-            dbms_output.put_line('Too many rows!');    
+            dbms_output.put_line('Multiple people with the name and phone combination exist!');   
 END;
 
-SET SERVEROUTPUT ON;
-EXEC printTestResults('Vishal', '6672321006');
 
+SET SERVEROUTPUT ON;
+--TESTS
+--Case 1: Person does not exist.
+EXEC printTestResults('Kirubel', '1272321002');
+SET SERVEROUTPUT ON;
+--Case 2: Person doesn't have a test reslt.
+EXEC printTestResults('Kirubel', '2405649308');
+
+--Case 3: Person and test result exists.
+EXEC printTestResults('Rohan', '6672321002');
+ROLLBACK;
 
 --Feature 12______________________________________________________________________________________KIRUBL TOLOSA____________
 

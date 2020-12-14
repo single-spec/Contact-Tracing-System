@@ -116,7 +116,8 @@ insert into Houses values(3, '1027 Howland Sq', '21229');
 insert into Houses values(4, '1028 Howland Sq', '21220');
 insert into Houses values(5, '1029 Howland Sq', '21221');
 
---insert values into table Person 									#Updated the address values in the Person table
+--insert values into table Person 
+insert into Person values(10, 1, 'Kirubel', '2405649308', 0);									#Updated the address values in the Person table
 insert into Person values(11, 1, 'Rohan', '6672321002', 0);
 insert into Person values(12, 2, 'Vikas',  '6672321003', 0);
 insert into Person values(13, 3, 'Vickey', '6672321004', 1);
@@ -143,6 +144,7 @@ insert into Tests values(test_sequence.nextval, 19, date '2020-12-05', 1);
 insert into Tests values(test_sequence.nextval, 20, date '2020-12-06', 1);
 insert into Tests values(test_sequence.nextval, 20, date '2020-12-08', 1);
 insert into Tests values(test_sequence.nextval, 11, date '2020-12-17', 1);
+
 
 --insert values into table Events
 insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
