@@ -161,11 +161,11 @@ Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 21;
 Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 22;
 
 --insert values into table Events
-insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
-insert into Events values(312, 'Hitler', date '2013-10-03', '4143 greenville');
-insert into Events values(313, 'Vile', date '2015-08-05', '4144 greenville');
-insert into Events values(314, 'John', date '2016-10-02', '4145 greenville');
-insert into Events values(315, 'Peter', date '2017-01-05', '4146 greenville');
+insert into Events values(311, 'Victor', date '2020-12-12', '4142 greenville');
+insert into Events values(312, 'Hitler', date '2020-11-09', '4143 greenville');
+insert into Events values(313, 'Vile', date '2020-12-05', '4144 greenville');
+insert into Events values(314, 'John', date '2020-11-10', '4145 greenville');
+insert into Events values(315, 'Peter', date '2020-12-07', '4146 greenville');
 
 --insert values into table Person_event
 insert into Person_event values(11, 311);
