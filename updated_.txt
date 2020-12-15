@@ -15,17 +15,6 @@ START WITH 6;
 CREATE SEQUENCE mid_seq3                        
 START WITH 22;
 
-select * from Tests;
-CREATE TABLE Status_Flags
- (
- pid   INT,
- tid   NUMBER,
- flag INT Check ( flag In (0,1)),
- PRIMARY KEY(pid, tid),
- FOREIGN KEY (pid) REFERENCES Person(pid),
- FOREIGN KEY (tid) REFERENCES Tests(tid)
- );
-
 CREATE OR REPLACE TRIGGER updateStatus
 AFTER INSERT OR UPDATE OR DELETE ON Tests
 FOR EACH ROW
@@ -37,7 +26,7 @@ END;
 
 
 ------------------------------------------------------
-
+drop table Status_Flags cascade constraints;
 drop table Person_flight cascade constraints;
 drop table Flights cascade constraints;
 drop table Person_event cascade constraints;
@@ -117,6 +106,13 @@ CREATE TABLE Person_flight
  Primary Key (pid, fid),
  FOREIGN KEY(pid) REFERENCES Person(pid),
  FOREIGN KEY(fid) REFERENCES Flights(fid)
+ );
+
+CREATE TABLE Status_Flags
+ (
+ pid   INT,
+ flag INT Check ( flag In (0,1)),
+ FOREIGN KEY (pid) REFERENCES Person(pid)
  );
 
 -----------------------------------------------------------------------------------
@@ -202,29 +198,21 @@ insert into Person_flight values(20, 1116);
 insert into Person_flight values(17, 1116);
 
 ---insert values into table Status_Flags
-insert into Status_Flags values(11, 1, 0);
-insert into Status_Flags values(12, 2, 0);
-insert into Status_Flags values(13, 3, 0);
-insert into Status_Flags values(14, 4, 0);
-insert into Status_Flags values(15, 5, 0);
-insert into Status_Flags values(16, 6, 0);
-insert into Status_Flags values(17, 7, 0);
-insert into Status_Flags values(18, 8, 0);
-insert into Status_Flags values(19, 9, 0);
-insert into Status_Flags values(20, 10, 0);
-insert into Status_Flags values(21, 11, 0);
-insert into Status_Flags values(22, 12, 0);
-
-
-
-
-
-
+insert into Status_Flags values(11, 0);
+insert into Status_Flags values(12, 0);
+insert into Status_Flags values(13, 0);
+insert into Status_Flags values(14, 0);
+insert into Status_Flags values(15, 0);
+insert into Status_Flags values(16, 0);
+insert into Status_Flags values(17, 0);
+insert into Status_Flags values(18, 0);
+insert into Status_Flags values(19, 0);
+insert into Status_Flags values(20, 0);
+insert into Status_Flags values(21, 0);
+insert into Status_Flags values(22, 0);
 
 
 ____Feature 3_____________________________________________________________________________________________
-
-
 
 CREATE OR replace PROCEDURE add_test(p_id     INT, 
                                      testdate DATE, 
@@ -284,6 +272,7 @@ BEGIN
 END; 
 
 --invalid id 
+set SERVEROUTPUT ON
 EXEC add_test(100, DATE '2020-08-08', 0); 
 --no existing test for newly added person 
 INSERT INTO person VALUES 
@@ -315,8 +304,8 @@ DELETE
 FROM   person 
 WHERE  pid=30;
 
-____Feature 4_____________________________________________________________________________________________
 
+____Feature 4_____________________________________________________________________________________________
 
 CREATE OR replace PROCEDURE list_people(x interval day TO second) 
 IS 
@@ -369,7 +358,6 @@ SET serveroutput ON;
 EXEC list_people(interval '1' day);
 EXEC list_people(interval '10' day);
 EXEC list_people(interval '90' day);
-
 
 ____Feature 10_____________________________________________________________________________________________
 
@@ -436,6 +424,7 @@ END;
 
 --Testing 
 SET serveroutput ON 
-EXEC list_people(interval '1' day);
-EXEC list_people(interval '10' day);
-EXEC list_people(interval '90' day);
+EXEC print_stats(interval '1' day);
+EXEC print_stats(interval '10' day);
+EXEC print_stats(interval '90' day);
+
