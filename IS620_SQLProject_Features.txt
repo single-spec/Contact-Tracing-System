@@ -244,7 +244,7 @@ SET serveroutput ON;
 EXEC list_people(interval '10' day);
 
 
---Feature 5--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+----Feature 5--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah---------------------------
 
 create sequence event_sequence
 set serveroutput ON; 
@@ -288,15 +288,16 @@ SET serveroutput ON;
 --TESTS 
 --Case 1: Already existing event 
 exec Add_event ('victor', DATE '2011-09-05', '4142 greenville' ); 
---Case 1: New event 
+--Case 2: New event 
 exec Add_event ('testEvent', DATE '2011-04-07', '4142 Howard'); 
 ROLLBACK 
 
-exec add_event ('victor', date '2011-09-05', '4142 greenville' ) -- already existing event
+exec add_event ('victor', date '2011-09-05', '4142 greenville' ); ------------------------------------success-- already existing event
 
-exec add_event ('victorerwe', date '2011-04-06', '4142 Howland'); -- new event
+exec add_event ('victore', date '2011-04-06', '4142 Howland'); --------------------------------------success---new event
 
---Feature 6--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+--Feature 6--------------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah-----------------------
+
 set serveroutput on;
 create or replace procedure list_PositiveEvent(number_of_days in number)
 is
@@ -335,7 +336,7 @@ CLOSE c1;
 END;
 /
 
-exec list_PositiveEvent (5)
+exec list_PositiveEvent(7);
 
 
 
@@ -642,7 +643,7 @@ END;
 SET serveroutput ON 
 EXEC print_stats(interval '3' day);
 
---Feature 11--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah
+--Feature 11--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah----------------------------
 
 CREATE OR replace PROCEDURE Daily_stats(st_date  IN DATE, 
                                         end_date IN DATE) 
@@ -745,12 +746,14 @@ BEGIN
 END; 
 
 / 
-exec daily_stats (DATE '2020-12-08', DATE '2020-12-17') 
 
-exec daily_stats (DATE '2010-08-08', DATE '2020-12-13') 
+exec daily_stats (DATE '2020-12-08', DATE '2020-12-17'); 
 
-exec daily_stats (DATE '2019-08-05', DATE '2020-12-05') 
+exec daily_stats (DATE '2010-08-08', DATE '2020-12-13'); 
 
+exec daily_stats (DATE '2019-08-05', DATE '2020-12-05');
+
+exec daily_stats (DATE '2020-10-25', DATE '2020-12-05');
 
 
 --Feature 12______________________________________________________________________________________KIRUBL TOLOSA____________
