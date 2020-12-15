@@ -287,50 +287,117 @@ EXEC list_people(interval '90' day);
 
 ----Feature 5--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah---------------------------
 
+create sequence event_sequence
+set serveroutput ON; 
+CREATE OR replace PROCEDURE Add_event(v_ename    IN EVENTS.e_name%TYPE, 
+                                      v_edate    IN EVENTS.e_date%TYPE, 
+                                      v_eaddress IN EVENTS.e_address%TYPE) 
+IS 
+  v_count INT; 
+  v_eid   INT; 
+BEGIN 
+    SELECT Count(*) 
+    INTO   v_count 
+    FROM   EVENTS 
+    WHERE  e_date = v_edate 
+           AND e_name = v_ename; 
 
+    IF v_count = 1 THEN 
+      SELECT eid 
+      INTO   v_eid 
+      FROM   EVENTS 
+      WHERE  e_date = v_edate 
+             AND e_name = v_ename; 
+
+      dbms_output.Put_line('Event exits'); 
+    ELSE 
+      INSERT INTO EVENTS 
+      VALUES      (event_sequence.NEXTVAL, 
+                   v_ename, 
+                   v_edate, 
+                   v_eaddress); 
+
+      dbms_output.Put_line('Event Created'); 
+    END IF; 
+EXCEPTION 
+  WHEN no_data_found THEN 
+             dbms_output.Put_line('No Data Found'); 
+END; 
+
+/ 
+SET serveroutput ON; 
+--TESTS 
+--Case 1: Already existing event 
+exec Add_event ('victor', DATE '2011-09-05', '4142 greenville' ); 
+--Case 2: New event 
+exec Add_event ('testEvent', DATE '2011-04-07', '4142 Howard'); 
+ROLLBACK 
+
+exec add_event ('victor', date '2011-09-05', '4142 greenville' ); ------------------------------------success-- already existing event
+
+exec add_event ('victore', date '2011-04-06', '4142 Howland'); --------------------------------------success---new event
 
 --Feature 6--------------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah-----------------------
 
-set serveroutput on;
-create or replace procedure list_PositiveEvent(number_of_days in number)
-is
-cursor c1 is select p_name,phone from Person where Person.status = 1;
-cursor c2 is select p1.p_name, p1.phone from Person p1, Person_event ep,Events e
-where e.eid = ep.eid and p1.pid = ep.pid and e.e_date - sysdate <= number_of_days and p1.status = 1;
 
-	v_p_name Person.p_name%TYPE;
-	v_phone Person.phone%TYPE;
-	p1_p_name Person.p_name%TYPE;
-	p1_phone Person.phone%TYPE;
+set serveroutput ON; 
+CREATE OR replace PROCEDURE List_positiveevent(number_of_days IN NUMBER) 
+IS 
+  CURSOR c1 IS 
+    SELECT distinct p_name, 
+           phone 
+    FROM   person 
+    WHERE  person.status = 1; 
+  CURSOR c2 IS 
+    SELECT distinct p2.p_name, 
+           p2.phone 
+    FROM   person p1, 
+           person p2, 
+           person_event ep1, person_event ep2,
+           EVENTS e            
+    WHERE  e.eid = ep2.eid
+           AND ep1.eid = ep2.eid
+           AND p1.pid = ep1.pid AND p2.pid = ep2.pid
+           AND e.e_date - SYSDATE <= number_of_days 
+           AND p1.status = 1 AND p2.status = 0;  
+           
+  v_p_name  person.p_name%TYPE; 
+  v_phone   person.phone%TYPE; 
+  p1_p_name person.p_name%TYPE; 
+  p1_phone  person.phone%TYPE; 
+  
+BEGIN 
+    OPEN c1; 
+    LOOP 
+        FETCH c1 INTO v_p_name, v_phone; 
+        EXIT WHEN c1%NOTFOUND; 
+        dbms_output.Put_line('the person name is ' 
+                             ||v_p_name 
+                             ||' phone number is ' 
+                             || v_phone);
+    end loop;
+    close c1;
+        
+    OPEN c2; 
+    LOOP 
+        FETCH c2 INTO p1_p_name, p1_phone; 
+        EXIT WHEN c2%NOTFOUND;
+        IF p1_p_name IS NOT NULL AND p1_p_name <> v_p_name AND p1_phone <> v_phone THEN 
+            dbms_output.Put_line('the person associated is ' 
+                                   ||p1_p_name 
+                                   ||' ,phone number is   ' 
+                                   ||p1_phone); 
+        --ELSE 
+              --dbms_output.Put_line('no such person'); 
+        END IF;   
+    END LOOP; 
+    CLOSE c2; 
+END; 
 
-BEGIN
-OPEN c1;
-LOOP
- FETCH c1 INTO v_p_name, v_phone;
- 
-DBMS_OUTPUT.PUT_LINE('the person name is '||v_p_name||'phone number is '|| v_phone);
-EXIT WHEN c1%NOTFOUND;
-
-OPEN c2;
-LOOP
-FETCH c2 INTO p1_p_name,p1_phone;
-if p1_p_name is not null and p1_p_name <> v_p_name  and  p1_phone <> v_phone then 
-DBMS_OUTPUT.PUT_LINE('the person associated is '||p1_p_name||'phone number is   '||p1_phone);
-
-else 
-DBMS_OUTPUT.PUT_LINE('no person is present');
-end if;
-EXIT WHEN c2%NOTFOUND;
-
-END LOOP;
-CLOSE c2;
-END LOOP;
-CLOSE c1;
-END;
-/
-
-exec list_PositiveEvent(7);
-
+---Testing
+exec list_positiveevent(1); 
+exec list_positiveevent(10); 
+exec list_positiveevent(30); 
 
 
 
@@ -763,8 +830,6 @@ exec daily_stats (DATE '2020-12-08', DATE '2020-12-17');
 exec daily_stats (DATE '2010-08-08', DATE '2020-12-13'); 
 
 exec daily_stats (DATE '2019-08-05', DATE '2020-12-05');
-
-exec daily_stats (DATE '2020-10-25', DATE '2020-12-05');
 
 
 --Feature 12______________________________________________________________________________________KIRUBL TOLOSA____________
