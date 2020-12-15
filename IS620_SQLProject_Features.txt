@@ -54,11 +54,24 @@ END;
 
 /
 
+--TEST CASE1
 set serveroutput on;
-
 exec add_person('Rohan', '1025 Howland Sq', '21227', '6672321002'); 		--Success "Person already exists"
-exec add_person('Sonal', '1025 Howland Sq', '21227', '6672321011');		--Success row inserted in table Person
-exec add_person('Parimal', '1020 Algate Sq', '21222', '6672321023');		--Success row inserted in table Houses and Person
+--OUTPUT:
+person already exists!
+
+--TEST CASE2
+set serveroutput on;
+exec add_person('Viza', '1025 Howland Sq', '21227', '6602321011');		--Success row inserted in table Person
+--OUTPUT:
+person inserted with existing house
+Details are :: Person Id: 25House Id: 1Address: 1025 Howland SqZipcode: 21227 Name:  VizaPhone number:  6602321011Status is:  NULL
+
+TEST CASE3
+set serveroutput on;
+exec add_person('Vani', '1021 Algate Sq', '21232', '6682321023');		--Success row inserted in table Houses and Person
+--OUTPUT:
+New house created with the newly assigned house id 10 and a person inserted with the new person id 26
 
 
 --Feature2________________________________________________________________________________________________SONAL JAYKUMAR INGLE______
@@ -102,6 +115,25 @@ END;
 
 SET SERVEROUTPUT ON;
 EXEC checkperson_status();
+--OUTPUT:
+Peoples Name and Phone Number whose current status is Positive
+Person Name  Person Phone Number  Person Status
+Vickey          6672321004            1
+Vaishak          6672321005            1
+Vishal          6672321006            1
+Ritviz          8772321004            1
+Mithila          8972321009            1
+Diya          6012321001            1
+Bob          8672321099            1
+Lucky          6872321002            1
+Details of person living in the same house
+Vikas          6672321003            0
+Marshal          6772321777            0
+Rohan          6672321002            0
+Helen          8872371001            0
+
+
+PL/SQL procedure successfully completed.
 
 --Feature 3______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
 CREATE OR replace PROCEDURE add_test(p_id     INT, 
@@ -448,7 +480,7 @@ perid_exists int;
 
 BEGIN
 select count(*) into perid_exists from Tests T where pid = input_pid1 and t_date = D1 and res = 1;
-dbms_output.put_line(perid_exists);
+--dbms_output.put_line(perid_exists);
 
 --check if a person already exists with same pid and tested positive on input date
 IF perid_exists = 1 THEN
@@ -462,20 +494,8 @@ EXCEPTION
 	WHEN NO_DATA_FOUND THEN
     dbms_output.put_line('No data found: Please check the inputs!');
 END;
-
-/
-
-SET SERVEROUTPUT ON;
---TEST CASE 1--INVALID INPUT
-SET SERVEROUTPUT ON;
-exec Feature_9(15,date '2019-08-05',interval'50' day,interval'50' day);
-
---TEST CASE 2--VALID
-SET SERVEROUTPUT ON;
-exec Feature_9_sub(11,date '2020-12-17',interval'50' day,interval'50' day);
-
-
 --------------------------------------------------------------------------
+--Sub procedure:
 -----------------step2,3,4,5--------------------------------------------
 CREATE OR REPLACE PROCEDURE Feature_9_sub (
 input_pid in int,
@@ -484,8 +504,9 @@ X in interval Day TO SECOND,
 Y in interval Day TO SECOND
 )
 IS
+  
 CURSOR C1 IS 
-	select p.p_name from person p, person p1 where p1.pid = input_pid and p.hid = p1.hid and p.pid != p1.pid;
+	SELECT p1.p_name FROM person p1,person p2,houses h WHERE  p1.hid=p2.hid AND p2.hid=h.hid AND p1.pid<>p2.pid AND p2.pid=input_pid;
 	
 CURSOR C2 IS
 	select p.p_name from person_event pe1,person_event pe2,events e,person p where pe1.eid= pe2.eid and e.eid=pe1.eid and p.pid=pe1.pid and pe1.pid<>pe2.pid and pe2.pid = input_pid and e.e_date BETWEEN D-X AND D;
@@ -514,68 +535,99 @@ i3 int :=0 ;
 
 BEGIN
 --finding close contact
---a_same house(feature2)
-
-   FOR n IN C1 LOOP
+--a_same house
+       FOR n IN C1 LOOP
 		name_list1(counter1) := n.p_name;
         --check B's test date must > A's test date
         select t_date,res into test_date,temp_res from Tests where pid = (select pid from Person where p_name = name_list1(counter1)) and ROWNUM =1 order by t_date;
-        IF D < test_date and test_date < D+Y and temp_res=1 THEN
+        IF D <= test_date and test_date < D+Y and temp_res=1 THEN
             dbms_output.put_line('Close Contact(' ||counter1|| '):' ||name_list1(counter1));
             dbms_output.put_line('The reason is person ' || name_list1(counter1) || ' lives in same house as person with id '|| input_pid || ' and test date is: ' || test_date);
+            counter1 := counter1 +1;
         END IF;  
-        counter1 := counter1 +1;
 	END LOOP;
 
---b_same event(feature6)
+--b_same event
    FOR n IN C2 LOOP
-		counter2 := counter2 +1;
 		name_list2(counter2) := n.p_name;
         --check B's test date must > A's test date
         select t_date,res into test_date,temp_res from Tests where pid = (select pid from Person where p_name = name_list2(counter2))and ROWNUM =1 order by t_date;
         IF D < test_date and test_date < D+Y and temp_res=1 THEN
             dbms_output.put_line('Close Contact(' ||counter2|| '):' ||name_list2(counter2));
             dbms_output.put_line('The reason is person' || name_list2(counter2) || 'attended same event as person with id '|| input_pid || ' and test date is: ' || test_date);
-        END IF;
+            counter2 := counter2 +1;
+    END IF;
 	END LOOP;
 
---c_same flight(feature4)
+--c_same flight
    FOR n IN C3 LOOP
-		counter3 := counter3 +1;
 		name_list3(counter3) := n.p_name;
         --check B's test date must > A's test date
         select t_date,res into test_date,temp_res from Tests where pid = (select pid from Person where p_name = name_list3(counter3))and ROWNUM =1 order by t_date;
         IF D < test_date and test_date < D+Y and temp_res=1 THEN
             dbms_output.put_line('Close Contact(' ||counter3|| '):' ||name_list3(counter3));
-            dbms_output.put_line('The reason is person' || name_list3(counter3) || 'travelled on same flight as person with id '|| input_pid || ' and test date is: ' || test_date);
+            dbms_output.put_line('The reason is person' || name_list3(counter3) || ' travelled on same flight as person with id '|| input_pid || ' and test date is: ' || test_date);
+            counter3 := counter3 +1;
         END IF;	
     END LOOP;
 
 FOR i1 in 1..name_list1.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i1);
--- dbms_output.put_line(input_pid_temp);
-	Feature_9_sub(input_pid_temp,test_date,X,Y);
+    dbms_output.put_line('*************************************************');
+    dbms_output.put_line('The person ids affected are: ' || input_pid_temp);
+    Feature_9_sub(input_pid_temp,D,X,Y);
 END LOOP;
 
 FOR i2 in 1..name_list2.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i2);
--- dbms_output.put_line(input_pid_temp);
-	Feature_9_sub(input_pid_temp,test_date,X,Y);
+    dbms_output.put_line('*************************************************');
+    dbms_output.put_line('The person ids affected are: ' || input_pid_temp);
+    Feature_9_sub(input_pid_temp,D,X,Y);
 END LOOP;
 
 FOR i3 in 1..name_list3.count
 LOOP
     select pid into input_pid_temp from Person where p_name = name_list1(i3);
--- dbms_output.put_line(input_pid_temp);
-	Feature_9_sub(input_pid_temp,test_date,X,Y);
+    dbms_output.put_line('*************************************************');
+    dbms_output.put_line('The person ids affected are: ' || input_pid_temp);
+    Feature_9_sub(input_pid_temp,D,X,Y);
 END LOOP;
 
 EXCEPTION
 	WHEN NO_DATA_FOUND THEN
     dbms_output.put_line('The transmission chain ends here....No more persons affected!');
 END;
+
+TEST CASES:
+SET SERVEROUTPUT ON;
+--TEST CASE 1--INVALID INPUT
+SET SERVEROUTPUT ON;
+exec Feature_9(15,date '2019-08-05',interval'50' day,interval'50' day);
+--OUTPUT
+Please enter valid input Person ID and Date!!!
+PL/SQL procedure successfully completed.
+
+
+--TEST CASE 2--VALID
+SET SERVEROUTPUT ON;
+exec Feature_9(11,date '2020-12-17',interval'50' day,interval'50' day);
+
+--OUTPUT
+The person ids affected due to Rohan are: 22
+Close Contact(0):Diya
+The reason is person Diya lives in same house as person with id 22 and test date is: 29-DEC-20
+Close Contact(1):Sonal
+The reason is person Sonal lives in same house as person with id 22 and test date is: 17-DEC-20
+*************************************************
+The person ids affected due to Rohan are: 23
+Close Contact(0):Diya
+The reason is person Diya lives in same house as person with id 23 and test date is: 29-DEC-20
+Close Contact(1):Lucky
+The reason is person Lucky lives in same house as person with id 23 and test date is: 17-DEC-20
+*************************************************
+
 
 --Feature 10______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
 
