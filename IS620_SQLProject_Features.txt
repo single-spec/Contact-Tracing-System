@@ -613,20 +613,15 @@ PL/SQL procedure successfully completed.
 --TEST CASE 2--VALID
 SET SERVEROUTPUT ON;
 exec Feature_9(11,date '2020-12-17',interval'50' day,interval'50' day);
-
 --OUTPUT
-The person ids affected due to Rohan are: 22
 Close Contact(0):Diya
-The reason is person Diya lives in same house as person with id 22 and test date is: 29-DEC-20
+The reason is person Diya lives in same house as person with id 11 and test date is: 29-DEC-20
 Close Contact(1):Sonal
-The reason is person Sonal lives in same house as person with id 22 and test date is: 17-DEC-20
-*************************************************
-The person ids affected due to Rohan are: 23
-Close Contact(0):Diya
-The reason is person Diya lives in same house as person with id 23 and test date is: 29-DEC-20
-Close Contact(1):Lucky
-The reason is person Lucky lives in same house as person with id 23 and test date is: 17-DEC-20
-*************************************************
+The reason is person Sonal lives in same house as person with id 11 and test date is: 17-DEC-20
+Close Contact(2):Lucky
+The reason is person Lucky lives in same house as person with id 11 and test date is: 17-DEC-20
+The transmission chain ends here....No more persons affected!
+PL/SQL procedure successfully completed.
 
 
 --Feature 10______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
