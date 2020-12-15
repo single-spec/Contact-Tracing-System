@@ -135,7 +135,10 @@ Helen          8872371001            0
 
 PL/SQL procedure successfully completed.
 
+
+
 --Feature 3______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+
 CREATE OR replace PROCEDURE add_test(p_id     INT, 
                                      testdate DATE, 
                                      t_result INT) 
@@ -178,10 +181,10 @@ BEGIN
         ELSIF v_tdate < testdate THEN 
           UPDATE tests 
           SET    res = t_result,
-	  	 t_date = testdate
+         t_date = testdate
           WHERE  pid = p_id 
                  AND v_tdate < testdate; 
-	ELSE 
+    ELSE 
           dbms_output.Put_line('result for latest date available');
         END IF; 
       END IF; 
@@ -194,6 +197,7 @@ BEGIN
 END; 
 
 --invalid id 
+set SERVEROUTPUT ON
 EXEC add_test(100, DATE '2020-08-08', 0); 
 --no existing test for newly added person 
 INSERT INTO person VALUES 
@@ -202,8 +206,7 @@ INSERT INTO person VALUES
                         1, 
                         'Harry', 
                         '6672321002', 
-                        0, 
-			0 
+                        0
             ); 
 
 EXEC add_test(30, DATE '2020-08-08', 1); 
@@ -228,6 +231,7 @@ WHERE  pid=30;
 
 
 --Feature 4______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
+
 CREATE OR replace PROCEDURE list_people(x interval day TO second) 
 IS 
   CURSOR c1 IS 
@@ -243,12 +247,13 @@ CURSOR c2 IS
                   person p2, 
                   person_flight pf1, 
                   person_flight pf2, 
-                  flights f 
+                  flights f
   WHERE           p1.status = 1 
   AND             p2.status = 0 
   AND             pf1.fid = pf2.fid 
   AND             pf1.pid = p1.pid 
-  AND             pf2.pid = p2.pid 
+  AND             pf2.pid = p2.pid
+  AND             pf2.fid = f.fid
   AND             f.f_date BETWEEN SYSDATE-x AND SYSDATE; 
 
 BEGIN 
@@ -269,64 +274,20 @@ BEGIN
     || r.p_name 
     || ' ,Phone: ' 
     || r.phone); 
-  END LOOP; 
+  END LOOP;
+  dbms_output.Put_line('-----end of results---- '); 
+  
 END; 
 --Testing 
 SET serveroutput ON; 
+EXEC list_people(interval '1' day);
 EXEC list_people(interval '10' day);
+EXEC list_people(interval '90' day);
 
 
 ----Feature 5--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah---------------------------
 
-create sequence event_sequence
-set serveroutput ON; 
-CREATE OR replace PROCEDURE Add_event(v_ename    IN EVENTS.e_name%TYPE, 
-                                      v_edate    IN EVENTS.e_date%TYPE, 
-                                      v_eaddress IN EVENTS.e_address%TYPE) 
-IS 
-  v_count INT; 
-  v_eid   INT; 
-BEGIN 
-    SELECT Count(*) 
-    INTO   v_count 
-    FROM   EVENTS 
-    WHERE  e_date = v_edate 
-           AND e_name = v_ename; 
 
-    IF v_count = 1 THEN 
-      SELECT eid 
-      INTO   v_eid 
-      FROM   EVENTS 
-      WHERE  e_date = v_edate 
-             AND e_name = v_ename; 
-
-      dbms_output.Put_line('Event exits'); 
-    ELSE 
-      INSERT INTO EVENTS 
-      VALUES      (event_sequence.NEXTVAL, 
-                   v_ename, 
-                   v_edate, 
-                   v_eaddress); 
-
-      dbms_output.Put_line('Event Created'); 
-    END IF; 
-EXCEPTION 
-  WHEN no_data_found THEN 
-             dbms_output.Put_line('No Data Found'); 
-END; 
-
-/ 
-SET serveroutput ON; 
---TESTS 
---Case 1: Already existing event 
-exec Add_event ('victor', DATE '2011-09-05', '4142 greenville' ); 
---Case 2: New event 
-exec Add_event ('testEvent', DATE '2011-04-07', '4142 Howard'); 
-ROLLBACK 
-
-exec add_event ('victor', date '2011-09-05', '4142 greenville' ); ------------------------------------success-- already existing event
-
-exec add_event ('victore', date '2011-04-06', '4142 Howland'); --------------------------------------success---new event
 
 --Feature 6--------------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah-----------------------
 
@@ -626,7 +587,7 @@ PL/SQL procedure successfully completed.
 
 --Feature 10______________________________________________________________________________________SHUBHI SHRIVASTAVA____________
 
-CREATE OR replace PROCEDURE print_stats(x interval day TO second) 
+CREATE OR replace PROCEDURE print_stats(x interval day to second) 
 IS 
   CURSOR c1 IS 
     SELECT DISTINCT count(*) AS c, 
@@ -642,11 +603,14 @@ CURSOR c3 IS
            zip 
   FROM     tests t, 
            person p, 
-           houses h 
+           houses h,
+           Status_Flags sf
   WHERE    t.pid = p.pid 
   AND      p.hid = h.hid 
-  AND      (p.flag=1 or p.status=1) 
+  AND      (sf.flag=1 or p.status=1) 
   GROUP BY zip; 
+  
+
 
 v_part2 INT; 
 v_cn INT;
@@ -656,7 +620,8 @@ BEGIN
   select count(*) into v_cn from Person where status = 1;
   dbms_output.Put_line('Total number of people who has positive status in the database');
   dbms_output.Put_line(v_cn);
-  dbms_output.Put_line('number of such people in each zip code:');  FOR r IN c1 
+  dbms_output.Put_line('number of such people in each zip code:');  
+  FOR r IN c1 
   LOOP 
     dbms_output.Put_line('zip :' 
     || r.zip 
@@ -666,20 +631,17 @@ BEGIN
   
   dbms_output.Put_line('Part 2)'); 
   dbms_output.Put_line('Total number of distinctive people tested positive in the given days'); 
-  SELECT count(DISTINCT t1.pid) 
-  INTO   v_part2 
-  FROM   tests t1, 
-         tests t2, 
+  SELECT count(DISTINCT t.pid)
+  into v_part2
+  FROM   tests t, 
          person p 
-  WHERE  t1.pid = p.pid 
-  AND    t1.res=1 
-  AND    t1.t_date between t2.t_date and t2.t_date+x;
-   
+  WHERE  t.pid = p.pid 
+  AND    t.res=1 
+  AND    t.t_date BETWEEN SYSDATE-x AND SYSDATE;  
   dbms_output.Put_line(v_part2); 
   
   dbms_output.Put_line('Part 3) '); 
   dbms_output.Put_line('Accumulated number of people tested positive in each zip code');
-
   FOR r IN c3 
   LOOP
     dbms_output.Put_line('zip :' || r.zip ||' count : ' || r.ct); 
@@ -688,7 +650,9 @@ END;
 
 --Testing 
 SET serveroutput ON 
-EXEC print_stats(interval '3' day);
+EXEC print_stats(interval '1' day);
+EXEC print_stats(interval '10' day);
+EXEC print_stats(interval '90' day);
 
 --Feature 11--------------------------------------------------------------------------------------------Vikas Matadha Rajashekharaiah----------------------------
 
@@ -887,5 +851,3 @@ EXEC findHotSpots(date '2020-10-20', 10, 1);
 --Case 3: Rising cases, new hotspots.
 EXEC findHotSpots(date '2020-10-30', 10, 1);
 ROLLBACK;
-
---Feature #______________________________________________________________________________________NAME LASTNAME____________

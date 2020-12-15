@@ -12,21 +12,21 @@ MAXVALUE 10000;
 CREATE SEQUENCE mid_seq2
 START WITH 6;
 
-CREATE SEQUENCE mid_seq3 	 					
+CREATE SEQUENCE mid_seq3                        
 START WITH 22;
-
-
 
 CREATE OR REPLACE TRIGGER updateStatus
 AFTER INSERT OR UPDATE OR DELETE ON Tests
 FOR EACH ROW
 BEGIN
     UPDATE Person SET Status = :new.res WHERE Person.pid = :new.pid;
-    UPDATE Person p SET p.flag = 1 where (:old.res = 0 and :new.res = 1) or p.status=1;
+    Update Status_Flags sf set sf.flag = 1 where (:old.res = 0 and :new.res = 1);
 END;
 
-------------------------------------------------------
 
+
+------------------------------------------------------
+drop table Status_Flags cascade constraints;
 drop table Person_flight cascade constraints;
 drop table Flights cascade constraints;
 drop table Person_event cascade constraints;
@@ -51,7 +51,6 @@ CREATE TABLE Person
  p_name VARCHAR(15),
  phone VARCHAR(10),
  status INT Check ( status In (0,1)),
- flag INT Check ( flag In (0,1)),
  PRIMARY KEY (pid),
  FOREIGN KEY (hid) REFERENCES Houses(hid)
  );
@@ -109,6 +108,13 @@ CREATE TABLE Person_flight
  FOREIGN KEY(fid) REFERENCES Flights(fid)
  );
 
+CREATE TABLE Status_Flags
+ (
+ pid   INT,
+ flag INT Check ( flag In (0,1)),
+ FOREIGN KEY (pid) REFERENCES Person(pid)
+ );
+
 -----------------------------------------------------------------------------------
 
 --insert values into table Houses
@@ -119,21 +125,19 @@ insert into Houses values(4, '1028 Howland Sq', '21220');
 insert into Houses values(5, '1029 Howland Sq', '21221');
 
 --insert values into table Person 
-insert into Person values(10, 1, 'Kirubel', '2405649308', 0, 0);									#Updated the address values in the Person table
-insert into Person values(11, 1, 'Rohan', '6672321002', 0, 0);
-insert into Person values(12, 2, 'Vikas',  '6672321003', 0, 0);
-insert into Person values(13, 3, 'Vickey', '6672321004', 1, 0);
-insert into Person values(14, 4, 'Vaishak', '6672321005', 1, 0);
-insert into Person values(15, 5, 'Vishal', '6672321006', 1, 0);
-insert into Person values(17, 2, 'Helen', '8872371001', 0, 0);
-insert into Person values(16, 2, 'Ritviz', '8772321004', 1, 0);
-insert into Person values(18, 2, 'Mithila', '8972321009', 1, 0);
-insert into Person values(19, 1, 'Diya', '6012321001', 1, 0);
-insert into Person values(20, 5, 'Bob', '8672321099', 1, 0);
-insert into Person values(21, 5, 'Marshal', '6772321777', 0, 0);
-insert into Person values(22, 5, 'Marta', '6772321723', 1, 0);
-insert into Person values(22, 1, 'Lucky', '6872321002', 1);
-insert into Person values(23, 1, 'Maria', '6972321111', 1);
+insert into Person values(10, 1, 'Kirubel', '2405649308', 0);                                   
+insert into Person values(11, 1, 'Rohan', '6672321002', 0);
+insert into Person values(12, 2, 'Vikas',  '6672321003', 0);
+insert into Person values(13, 3, 'Vickey', '6672321004', 1);
+insert into Person values(14, 4, 'Vaishak', '6672321005', 1);
+insert into Person values(15, 5, 'Vishal', '6672321006', 1);
+insert into Person values(17, 2, 'Helen', '8872371001', 0);
+insert into Person values(16, 2, 'Ritviz', '8772321004', 1);
+insert into Person values(18, 2, 'Mithila', '8972321009', 1);
+insert into Person values(19, 1, 'Diya', '6012321001', 1);
+insert into Person values(20, 5, 'Bob', '8672321099', 1);
+insert into Person values(21, 5, 'Marshal', '6772321777', 0);
+insert into Person values(22, 5, 'Marta', '6772321723', 1);
 
 -- Updated the Insert Into test statements
 --insert values into table Tests
@@ -151,8 +155,6 @@ insert into Tests values(test_sequence.nextval, 20, date '2020-12-08', 1);
 insert into Tests values(test_sequence.nextval, 11, date '2020-12-17', 1);
 insert into Tests values(test_sequence.nextval, 21, date '2020-10-25', 1);
 insert into Tests values(test_sequence.nextval, 22, date '2020-10-25', 1);
-insert into Tests values(test_sequence.nextval, 22, date '2020-12-17', 1);
-insert into Tests values(test_sequence.nextval, 23, date '2020-12-17', 1);
 
 --Updated Values of the records in the Tests table
 Update Tests  Set t_date = date '2020-10-02', res = 1 Where pid = 15;
@@ -165,13 +167,11 @@ Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 21;
 Update Tests  Set t_date = date '2020-10-25', res = 1 Where pid = 22;
 
 --insert values into table Events
-insert into Events values(311, 'Victor', date '2020-12-12', '4142 greenville');
-insert into Events values(312, 'Hitler', date '2020-11-09', '4143 greenville');
-insert into Events values(313, 'Vile', date '2020-12-05', '4144 greenville');
-insert into Events values(314, 'John', date '2020-11-10', '4145 greenville');
-insert into Events values(315, 'Peter', date '2020-12-07', '4146 greenville');
-insert into Events values(316, 'Marraige Ceremony', date '2020-12-17', '4147 greenville');
-insert into Events values(317, 'Baby Shower', date '2020-12-17', '4148 greenville');
+insert into Events values(311, 'Victor', date '2011-09-05', '4142 greenville');
+insert into Events values(312, 'Hitler', date '2013-10-03', '4143 greenville');
+insert into Events values(313, 'Vile', date '2015-08-05', '4144 greenville');
+insert into Events values(314, 'John', date '2016-10-02', '4145 greenville');
+insert into Events values(315, 'Peter', date '2017-01-05', '4146 greenville');
 
 --insert values into table Person_event
 insert into Person_event values(11, 311);
@@ -179,10 +179,6 @@ insert into Person_event values(12, 312);
 insert into Person_event values(13, 313);
 insert into Person_event values(14, 311);
 insert into Person_event values(15, 314);
-insert into Person_event values(22, 316);
-insert into Person_event values(23, 316);
-insert into Person_event values(22, 317);
-insert into Person_event values(23, 317);
 
 --insert values into table Flights
 insert into Flights values(1111, date '2020-06-13', 'DL 819');
@@ -191,8 +187,6 @@ insert into Flights values(1113, date '2017-08-18', 'BA 821');
 insert into Flights values(1114, date '2020-10-28', 'GF 823');
 insert into Flights values(1115, date '2010-11-08', 'DL 824');
 insert into Flights values(1116, date '2020-12-10', 'DL 613');
-insert into Flights values(1117, date '2020-12-05', 'DL 924');
-insert into Flights values(1118, date '2020-12-05', 'DL 999');
 
 --insert values into table Person_flight
 insert into Person_flight values(11, 1111);
@@ -202,8 +196,17 @@ insert into Person_flight values(13, 1114);
 insert into Person_flight values(14, 1111);
 insert into Person_flight values(20, 1116);
 insert into Person_flight values(17, 1116);
-insert into Person_flight values(22, 1117);
-insert into Person_flight values(23, 1117);
-insert into Person_flight values(22, 1118);
-insert into Person_flight values(23, 1118);
 
+---insert values into table Status_Flags
+insert into Status_Flags values(11, 0);
+insert into Status_Flags values(12, 0);
+insert into Status_Flags values(13, 0);
+insert into Status_Flags values(14, 0);
+insert into Status_Flags values(15, 0);
+insert into Status_Flags values(16, 0);
+insert into Status_Flags values(17, 0);
+insert into Status_Flags values(18, 0);
+insert into Status_Flags values(19, 0);
+insert into Status_Flags values(20, 0);
+insert into Status_Flags values(21, 0);
+insert into Status_Flags values(22, 0);
